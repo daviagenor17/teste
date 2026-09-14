@@ -2,212 +2,279 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>3D Synthwave Runner</title>
+  <title>Blox Fruits - Giro 3D Ilimitado</title>
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      margin: 0;
       overflow: hidden;
-      background: #000;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #05050f;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      user-select: none;
     }
     #ui {
       position: absolute;
-      top: 20px;
-      left: 20px;
-      color: #00ffff;
-      font-size: 24px;
-      font-weight: bold;
-      text-shadow: 0 0 10px #00ffff;
+      top: 0; left: 0; width: 100%; height: 100%;
       pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 30px;
     }
-    #game-over {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+    .title {
       color: #fff;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+      background: rgba(10, 10, 25, 0.7);
+      padding: 12px 30px;
+      border-radius: 50px;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+    }
+    #result-box {
       text-align: center;
-      display: none;
+      transition: all 0.5s ease;
+      opacity: 0;
+      transform: translateY(20px);
     }
-    #game-over h1 {
-      font-size: 52px;
-      color: #ff0055;
-      margin: 0;
-      text-shadow: 0 0 20px #ff0055;
+    #result-box.show {
+      opacity: 1;
+      transform: translateY(0);
     }
-    #game-over p {
-      font-size: 20px;
-      margin-top: 10px;
-      color: #ccc;
+    .fruit-name {
+      font-size: 42px;
+      font-weight: 900;
+      text-transform: uppercase;
+      text-shadow: 0 0 20px currentColor;
+    }
+    .fruit-rarity {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: #aaa;
+      margin-top: 5px;
+    }
+    #spin-btn {
+      pointer-events: auto;
+      background: linear-gradient(135deg, #ff0055, #ff5500);
+      color: white;
+      border: none;
+      padding: 18px 50px;
+      font-size: 22px;
+      font-weight: 800;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(255, 85, 0, 0.5);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    #spin-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 40px rgba(255, 85, 0, 0.8);
+    }
+    #spin-btn:disabled {
+      background: #444;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
     }
   </style>
 </head>
 <body>
 
-  <div id="ui">PONTOS: <span id="score">0</span></div>
-
-  <div id="game-over">
-    <h1>GAME OVER</h1>
-    <p>Pressione <b>ESPAÇO</b> para Reiniciar</p>
+  <div id="ui">
+    <div class="title">Gacha Blox Fruits 3D</div>
+    <div id="result-box">
+      <div class="fruit-name" id="fruit-name">Mítica!</div>
+      <div class="fruit-rarity" id="fruit-rarity">Raridade</div>
+    </div>
+    <button id="spin-btn" onclick="spinFruit()">GIRAR FRUTA</button>
   </div>
 
-  <!-- Biblioteca Three.js para renderização 3D -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
   <script>
-    // --- 1. CONFIGURAÇÃO DA CENA 3D ---
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x0a0a1a, 0.025);
+    // --- BANCO DE DADOS DE FRUTAS ---
+    const FRUITS = [
+      // Comuns
+      { name: "Rocket", rarity: "Comum", color: 0x777777, prob: 25 },
+      { name: "Spin", rarity: "Comum", color: 0x888888, prob: 20 },
+      { name: "Chop", rarity: "Comum", color: 0x999999, prob: 15 },
+      // Incomuns
+      { name: "Flame", rarity: "Incomum", color: 0xff4500, prob: 12 },
+      { name: "Ice", rarity: "Incomum", color: 0x00ffff, prob: 10 },
+      { name: "Dark", rarity: "Incomum", color: 0x4b0082, prob: 8 },
+      // Raras
+      { name: "Light", rarity: "Rara", color: 0xffd700, prob: 5 },
+      { name: "Magma", rarity: "Rara", color: 0xff1493, prob: 3 },
+      { name: "Quake", rarity: "Rara", color: 0x8b4513, prob: 1.5 },
+      // Lendárias
+      { name: "Buddha", rarity: "Lendária", color: 0xffaa00, prob: 0.3 },
+      { name: "Dough", rarity: "Lendária", color: 0xffb6c1, prob: 0.15 },
+      // Míticas
+      { name: "Venom", rarity: "Mítica", color: 0x9400d3, prob: 0.03 },
+      { name: "Dragon", rarity: "Mítica", color: 0xd2143a, prob: 0.015 },
+      { name: "Leopard", rarity: "Mítica", color: 0xff69b4, prob: 0.008 },
+      { name: "Kitsune", rarity: "Mítica", color: 0x00f3ff, prob: 0.002 }
+    ];
 
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const RARITY_COLORS = {
+      "Comum": "#b0b0b0",
+      "Incomum": "#55ff55",
+      "Rara": "#0099ff",
+      "Lendária": "#ffaa00",
+      "Mítica": "#ff0055"
+    };
+
+    // --- CENA THREE.JS ---
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x05050f, 0.02);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 1.5, 6);
+
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     document.body.appendChild(renderer.domElement);
 
-    // --- 2. ILUMINAÇÃO ---
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+    // --- ILUMINAÇÃO ---
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0x00ffff, 0.8);
-    dirLight.position.set(0, 10, 10);
-    scene.add(dirLight);
+    const auraLight = new THREE.PointLight(0x00f3ff, 3, 20);
+    auraLight.position.set(0, 1, 0);
+    scene.add(auraLight);
 
-    const pointLight = new THREE.PointLight(0xff0055, 2, 30);
-    scene.add(pointLight);
+    // Pedestal
+    const pedestalGeo = new THREE.CylinderGeometry(1.5, 1.8, 0.4, 32);
+    const pedestalMat = new THREE.MeshStandardMaterial({ color: 0x111122, roughness: 0.3, metalness: 0.8 });
+    const pedestal = new THREE.Mesh(pedestalGeo, pedestalMat);
+    pedestal.position.y = -1.2;
+    scene.add(pedestal);
 
-    // --- 3. CENÁRIO 3D (PISTA NEON) ---
-    const trackGeo = new THREE.PlaneGeometry(12, 300);
-    const trackMat = new THREE.MeshStandardMaterial({ color: 0x111122, roughness: 0.1, metalness: 0.8 });
-    const track = new THREE.Mesh(trackGeo, trackMat);
-    track.rotation.x = -Math.PI / 2;
-    track.position.z = -100;
-    scene.add(track);
+    // --- GRUPO DA FRUTA 3D ---
+    const fruitGroup = new THREE.Group();
+    scene.add(fruitGroup);
 
-    // Linhas Laterais
-    const lineGeo = new THREE.BoxGeometry(0.2, 0.2, 300);
-    const lineMat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
-    
-    const lineL = new THREE.Mesh(lineGeo, lineMat);
-    lineL.position.set(-6, 0.1, -100);
-    scene.add(lineL);
+    // Corpo da Fruta (Icosaedro estilizado estilo Blox Fruits)
+    const fruitGeo = new THREE.IcosahedronGeometry(1.2, 1);
+    const fruitMat = new THREE.MeshStandardMaterial({
+      color: 0x00f3ff,
+      roughness: 0.2,
+      metalness: 0.3,
+      wireframe: false
+    });
+    const fruitMesh = new THREE.Mesh(fruitGeo, fruitMat);
+    fruitGroup.add(fruitMesh);
 
-    const lineR = new THREE.Mesh(lineGeo, lineMat);
-    lineR.position.set(6, 0.1, -100);
-    scene.add(lineR);
+    // Anel de Energia ao redor da Fruta
+    const ringGeo = new THREE.TorusGeometry(1.8, 0.04, 16, 100);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff });
+    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+    ringMesh.rotation.x = Math.PI / 2;
+    fruitGroup.add(ringMesh);
 
-    // --- 4. JOGADOR (CUBO 3D) ---
-    const playerGeo = new THREE.BoxGeometry(1, 1, 1);
-    const playerMat = new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x004444, roughness: 0.2 });
-    const player = new THREE.Mesh(playerGeo, playerMat);
-    player.position.set(0, 0.5, 0);
-    scene.add(player);
+    // Partículas
+    const particleCount = 60;
+    const particleGeo = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount * 3; i += 3) {
+      positions[i] = (Math.random() - 0.5) * 5;
+      positions[i+1] = (Math.random() - 0.5) * 5;
+      positions[i+2] = (Math.random() - 0.5) * 5;
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const particleMat = new THREE.PointsMaterial({ size: 0.06, color: 0x00f3ff, transparent: true, opacity: 0.8 });
+    const particles = new THREE.Points(particleGeo, particleMat);
+    scene.add(particles);
 
-    // Posicionamento da Câmera
-    camera.position.set(0, 3.5, 6);
-    camera.rotation.x = -0.3;
+    // --- LÓGICA DO GIRO ---
+    let isSpinning = false;
+    let spinTime = 0;
+    let selectedFruit = null;
 
-    // --- 5. LÓGICA DO JOGO ---
-    let obstacles = [];
-    let speed = 0.6;
-    let score = 0;
-    let isGameOver = false;
-    let spawnTimer = 0;
-    const keys = {};
-
-    // Gerar Obstáculos em 3D
-    function spawnObstacle() {
-      const size = Math.random() * 0.8 + 0.8;
-      const geo = new THREE.BoxGeometry(size, size, size);
-      const mat = new THREE.MeshStandardMaterial({ color: 0xff0055, emissive: 0x660022 });
-      const obs = new THREE.Mesh(geo, mat);
-      
-      const posX = (Math.random() - 0.5) * 10;
-      obs.position.set(posX, size / 2, -120);
-      scene.add(obs);
-      obstacles.push(obs);
+    function getRandomFruit() {
+      const totalWeight = FRUITS.reduce((sum, f) => sum + f.prob, 0);
+      let random = Math.random() * totalWeight;
+      for (let fruit of FRUITS) {
+        if (random < fruit.prob) return fruit;
+        random -= fruit.prob;
+      }
+      return FRUITS[0];
     }
 
-    // Controles
-    window.addEventListener('keydown', e => {
-      keys[e.code] = true;
-      if (isGameOver && e.code === 'Space') restartGame();
-    });
-    window.addEventListener('keyup', e => keys[e.code] = false);
+    function spinFruit() {
+      if (isSpinning) return;
+      
+      isSpinning = true;
+      spinTime = 0;
+      document.getElementById('spin-btn').disabled = true;
+      document.getElementById('result-box').classList.remove('show');
+      
+      selectedFruit = getRandomFruit();
+    }
+
+    // --- LOOP DE ANIMAÇÃO ---
+    function animate() {
+      requestAnimationFrame(animate);
+
+      particles.rotation.y += 0.002;
+
+      if (isSpinning) {
+        spinTime += 0.016;
+
+        // Animação de rotação rápida
+        fruitGroup.rotation.y += 0.25;
+        fruitGroup.rotation.x += 0.15;
+        ringMesh.rotation.y += 0.3;
+
+        // Efeito de oscilação de cor durante o giro
+        const randomHue = Math.random();
+        fruitMat.color.setHSL(randomHue, 1, 0.5);
+        ringMat.color.setHSL(randomHue, 1, 0.5);
+        auraLight.color.setHSL(randomHue, 1, 0.5);
+
+        // Flutuação
+        fruitGroup.position.y = Math.sin(spinTime * 10) * 0.2;
+
+        // Final do Giro (após 3 segundos)
+        if (spinTime >= 3) {
+          isSpinning = false;
+          document.getElementById('spin-btn').disabled = false;
+
+          // Aplica cor e propriedades da fruta sorteada
+          fruitMat.color.setHex(selectedFruit.color);
+          ringMat.color.setHex(selectedFruit.color);
+          auraLight.color.setHex(selectedFruit.color);
+          particleMat.color.setHex(selectedFruit.color);
+
+          // Exibe a UI do Resultado
+          const nameEl = document.getElementById('fruit-name');
+          const rarityEl = document.getElementById('fruit-rarity');
+          
+          nameEl.innerText = selectedFruit.name;
+          nameEl.style.color = RARITY_COLORS[selectedFruit.rarity];
+          rarityEl.innerText = `RARIDADE: ${selectedFruit.rarity.toUpperCase()}`;
+          
+          document.getElementById('result-box').classList.add('show');
+        }
+      } else {
+        // Rotação suave normal quando ocioso
+        fruitGroup.rotation.y += 0.01;
+        fruitGroup.rotation.x = 0;
+        ringMesh.rotation.y += 0.02;
+        fruitGroup.position.y = Math.sin(Date.now() * 0.002) * 0.15;
+      }
+
+      renderer.render(scene, camera);
+    }
 
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
-
-    function restartGame() {
-      obstacles.forEach(obs => scene.remove(obs));
-      obstacles = [];
-      score = 0;
-      speed = 0.6;
-      player.position.x = 0;
-      isGameOver = false;
-      document.getElementById('game-over').style.display = 'none';
-      document.getElementById('score').innerText = '0';
-    }
-
-    // --- 6. LOOP DE ANIMAÇÃO ---
-    function animate() {
-      requestAnimationFrame(animate);
-
-      if (isGameOver) return;
-
-      // Movimento do Jogador (A/D ou Setas)
-      if ((keys['ArrowLeft'] || keys['KeyA']) && player.position.x > -5) {
-        player.position.x -= 0.18;
-      }
-      if ((keys['ArrowRight'] || keys['KeyD']) && player.position.x < 5) {
-        player.position.x += 0.18;
-      }
-
-      // Animação de rotação do jogador
-      player.rotation.z = -player.position.x * 0.08;
-      player.rotation.x += 0.05;
-
-      // Atualiza luz neon acompanhando o jogador
-      pointLight.position.set(player.position.x, 2, player.position.z);
-
-      // Gerar novos obstáculos
-      spawnTimer++;
-      if (spawnTimer > 12) {
-        spawnObstacle();
-        spawnTimer = 0;
-      }
-
-      // Atualizar Obstáculos
-      for (let i = obstacles.length - 1; i >= 0; i--) {
-        const obs = obstacles[i];
-        obs.position.z += speed;
-        obs.rotation.x += 0.02;
-        obs.rotation.y += 0.02;
-
-        // Detecção de Colisão 3D
-        const playerBox = new THREE.Box3().setFromObject(player);
-        const obsBox = new THREE.Box3().setFromObject(obs);
-
-        if (playerBox.intersectsBox(obsBox)) {
-          isGameOver = true;
-          document.getElementById('game-over').style.display = 'block';
-        }
-
-        // Remover obstáculos que passaram
-        if (obs.position.z > 10) {
-          scene.remove(obs);
-          obstacles.splice(i, 1);
-          score += 10;
-          speed += 0.003; // Aumenta a velocidade progressivamente
-          document.getElementById('score').innerText = score;
-        }
-      }
-
-      renderer.render(scene, camera);
-    }
 
     animate();
   </script>
