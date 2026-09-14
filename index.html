@@ -2,400 +2,328 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Blox Fruits 3D - Rework Completo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fruit World 3D</title>
 
 <style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-html,body{
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#07101c;
-    color:white;
-    font-family:Arial,Helvetica,sans-serif;
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #101827;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
-body{
-    position:relative;
+#canvas-container {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(#263b5c, #101827);
 }
 
-#canvas-container{
-    position:fixed;
-    inset:0;
-    width:100vw;
-    height:100vh;
-    z-index:1;
-    overflow:hidden;
-    background:
-        radial-gradient(circle at center,#17243b 0%,#08111f 55%,#03060b 100%);
+#canvas-container canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
 }
 
-#canvas-container canvas{
-    display:block;
-    width:100% !important;
-    height:100% !important;
+#ui {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
 }
 
-#ui{
-    position:fixed;
-    inset:0;
-    z-index:10;
-    pointer-events:none;
+.panel {
+    background: rgba(8, 12, 24, 0.92);
+    border: 2px solid #263d68;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.45);
+    backdrop-filter: blur(8px);
 }
 
-.panel{
-    background:rgba(7,12,23,.90);
-    border:1px solid rgba(0,220,255,.45);
-    box-shadow:
-        0 0 20px rgba(0,0,0,.5),
-        inset 0 0 20px rgba(0,180,255,.04);
-    backdrop-filter:blur(10px);
+#stats {
+    position: absolute;
+    left: 18px;
+    top: 18px;
+    width: 330px;
+    padding: 15px;
 }
 
-#status{
-    position:absolute;
-    top:18px;
-    left:18px;
-    width:350px;
-    padding:15px;
-    border-radius:14px;
+.title {
+    color: #00eaff;
+    font-size: 17px;
+    font-weight: 900;
+    margin-bottom: 10px;
 }
 
-.title{
-    font-weight:900;
-    color:#00eaff;
-    font-size:15px;
-    margin-bottom:10px;
-    text-transform:uppercase;
+.bar {
+    height: 15px;
+    background: #20283a;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #39455d;
+    margin-top: 6px;
 }
 
-.bar{
-    width:100%;
-    height:14px;
-    border-radius:20px;
-    overflow:hidden;
-    background:#111827;
-    border:1px solid #26344c;
-    margin-top:6px;
+#hp-fill {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,#ff1744,#ff6d00);
 }
 
-.bar-fill{
-    height:100%;
-    width:100%;
-    transition:width .2s;
+#xp-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg,#00eaff,#2979ff);
 }
 
-#hp-fill{
-    background:linear-gradient(90deg,#ff1744,#ff6d00);
+.info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    color: #d0d6e2;
+    font-size: 13px;
 }
 
-#energy-fill{
-    background:linear-gradient(90deg,#00e5ff,#2979ff);
+#fruit-info {
+    margin-top: 10px;
+    color: #fff;
+    font-weight: bold;
 }
 
-#xp-fill{
-    background:linear-gradient(90deg,#00ff88,#00c853);
+#quest {
+    position: absolute;
+    right: 18px;
+    top: 18px;
+    width: 300px;
+    padding: 15px;
+    border-color: #ffb300;
 }
 
-.status-row{
-    display:flex;
-    justify-content:space-between;
-    font-size:12px;
-    color:#bbb;
-    margin-top:5px;
+#quest h3 {
+    color: #ffb300;
+    margin-bottom: 8px;
 }
 
-#quest{
-    position:absolute;
-    right:18px;
-    top:18px;
-    width:310px;
-    padding:15px;
-    border-radius:14px;
-    border-color:rgba(255,180,0,.55);
+#quest-text {
+    font-size: 13px;
+    color: #ddd;
+    line-height: 1.5;
 }
 
-.quest-title{
-    color:#ffb300;
-    font-weight:900;
-    margin-bottom:8px;
+#npc-message {
+    position: absolute;
+    left: 50%;
+    top: 27%;
+    transform: translate(-50%,-50%);
+    padding: 15px 25px;
+    background: rgba(0,0,0,.8);
+    border: 2px solid #00eaff;
+    border-radius: 14px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 18px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity .25s;
 }
 
-#quest-text{
-    color:#ccc;
-    font-size:13px;
-    line-height:1.5;
+#fruit-menu {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    width: min(850px,94vw);
+    max-height: 82vh;
+    overflow-y: auto;
+    padding: 20px;
+    background: rgba(5,8,18,.97);
+    border: 2px solid #b000ff;
+    border-radius: 18px;
+    display: none;
+    pointer-events: auto;
+    box-shadow: 0 0 50px rgba(150,0,255,.35);
 }
 
-#fruit-name{
-    color:#00eaff;
+#fruit-menu h2 {
+    color: #d500ff;
+    text-align: center;
+    margin-bottom: 5px;
 }
 
-#center-message{
-    position:absolute;
-    left:50%;
-    top:28%;
-    transform:translate(-50%,-50%);
-    color:#fff;
-    font-size:30px;
-    font-weight:900;
-    text-align:center;
-    text-shadow:
-        0 0 10px #00eaff,
-        0 0 30px #0077ff;
-    opacity:0;
-    transition:opacity .2s;
-    white-space:nowrap;
+#fruit-menu p {
+    text-align: center;
+    color: #aaa;
+    margin-bottom: 15px;
 }
 
-#combo{
-    position:absolute;
-    right:40px;
-    top:43%;
-    font-size:34px;
-    color:#ff4081;
-    font-weight:900;
-    text-shadow:0 0 15px #ff004c;
-    opacity:0;
+.fruit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+    gap: 12px;
 }
 
-#hotbar{
-    position:absolute;
-    bottom:18px;
-    left:50%;
-    transform:translateX(-50%);
-    display:flex;
-    gap:8px;
-    padding:10px;
-    border-radius:16px;
-    pointer-events:auto;
+.fruit-card {
+    background: linear-gradient(145deg,#131a2b,#080c16);
+    border: 2px solid #33405c;
+    border-radius: 13px;
+    padding: 14px;
+    cursor: pointer;
+    transition: .2s;
 }
 
-.slot{
-    width:105px;
-    min-height:72px;
-    padding:8px;
-    border-radius:10px;
-    text-align:center;
-    border:2px solid #31415b;
-    background:rgba(15,24,42,.95);
-    transition:.15s;
+.fruit-card:hover {
+    transform: translateY(-3px);
+    border-color: #00eaff;
 }
 
-.slot:hover{
-    transform:translateY(-4px);
-    border-color:#00eaff;
+.fruit-card h3 {
+    margin-bottom: 7px;
 }
 
-.slot.active{
-    border-color:#ffd600;
-    box-shadow:0 0 15px rgba(255,214,0,.35);
+.fruit-card .type {
+    color: #aaa;
+    font-size: 11px;
+    margin-bottom: 8px;
 }
 
-.key{
-    color:#00eaff;
-    font-size:19px;
-    font-weight:900;
+.fruit-card .skill-list {
+    font-size: 12px;
+    line-height: 1.65;
+    color: #ddd;
 }
 
-.skill{
-    font-size:10px;
-    color:#ddd;
-    margin-top:5px;
-    min-height:24px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+#close-menu {
+    display: block;
+    margin: 18px auto 0;
+    border: 0;
+    background: #b000ff;
+    color: white;
+    padding: 10px 25px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-weight: bold;
 }
 
-.cd{
-    color:#ff9800;
-    font-size:10px;
-    font-weight:bold;
+#hotbar {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 9px;
+    padding: 10px;
+    background: rgba(5,8,18,.94);
+    border: 2px solid #263d68;
+    border-radius: 15px;
+    pointer-events: auto;
 }
 
-#controls{
-    position:absolute;
-    left:18px;
-    bottom:18px;
-    padding:11px 14px;
-    border-radius:10px;
-    font-size:11px;
-    line-height:1.7;
-    color:#bbb;
+.skill {
+    width: 105px;
+    min-height: 70px;
+    border: 2px solid #34435f;
+    background: #11182a;
+    border-radius: 10px;
+    text-align: center;
+    padding: 8px;
+    position: relative;
+    overflow: hidden;
 }
 
-#interaction{
-    position:absolute;
-    left:50%;
-    bottom:135px;
-    transform:translateX(-50%);
-    padding:10px 18px;
-    border-radius:10px;
-    color:#fff;
-    background:rgba(0,0,0,.75);
-    border:1px solid #00eaff;
-    opacity:0;
-    transition:.2s;
+.skill.active {
+    border-color: #00eaff;
+    box-shadow: 0 0 12px rgba(0,234,255,.4);
 }
 
-#fruit-menu{
-    position:absolute;
-    left:50%;
-    top:50%;
-    transform:translate(-50%,-50%);
-    width:min(760px,92vw);
-    max-height:82vh;
-    overflow:auto;
-    border-radius:18px;
-    padding:20px;
-    background:rgba(5,9,18,.97);
-    border:2px solid #d000ff;
-    box-shadow:
-        0 0 30px rgba(180,0,255,.3),
-        inset 0 0 30px rgba(120,0,255,.06);
-    pointer-events:auto;
-    display:none;
+.skill .key {
+    color: #00eaff;
+    font-size: 19px;
+    font-weight: 900;
 }
 
-#fruit-menu.open{
-    display:block;
+.skill .name {
+    font-size: 10px;
+    margin-top: 5px;
+    color: white;
 }
 
-.menu-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:16px;
+.skill .cd {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.72);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
 }
 
-.menu-header h2{
-    color:#e040fb;
-    text-shadow:0 0 10px #9c27b0;
+#controls {
+    position: absolute;
+    left: 18px;
+    bottom: 20px;
+    background: rgba(0,0,0,.78);
+    padding: 12px 15px;
+    border-radius: 10px;
+    color: #c8cfdb;
+    font-size: 12px;
+    line-height: 1.7;
 }
 
-.close{
-    cursor:pointer;
-    border:0;
-    background:#24132c;
-    color:#fff;
-    border-radius:8px;
-    padding:8px 12px;
-    font-weight:bold;
+#interaction {
+    position: absolute;
+    bottom: 125px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,.8);
+    border: 1px solid #00eaff;
+    padding: 10px 18px;
+    border-radius: 10px;
+    color: white;
+    display: none;
 }
 
-.fruit-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-    gap:12px;
-}
-
-.fruit-card{
-    padding:14px;
-    border-radius:13px;
-    background:linear-gradient(145deg,#111827,#080c15);
-    border:1px solid #303b55;
-}
-
-.fruit-card:hover{
-    border-color:#d000ff;
-}
-
-.fruit-card h3{
-    margin-bottom:5px;
-}
-
-.rarity{
-    font-size:10px;
-    color:#aaa;
-    margin-bottom:10px;
-}
-
-.price{
-    color:#ffd600;
-    font-weight:bold;
-    margin-bottom:10px;
-}
-
-.fruit-card button{
-    width:100%;
-    border:0;
-    padding:9px;
-    border-radius:8px;
-    color:white;
-    cursor:pointer;
-    font-weight:bold;
-    background:linear-gradient(90deg,#7b1fa2,#e040fb);
-}
-
-.fruit-card button:hover{
-    filter:brightness(1.2);
-}
-
-#notification{
-    position:absolute;
-    left:50%;
-    top:12%;
-    transform:translateX(-50%);
-    padding:10px 18px;
-    border-radius:10px;
-    background:rgba(0,0,0,.8);
-    border:1px solid #ffd600;
-    color:#ffd600;
-    font-weight:bold;
-    opacity:0;
-    transition:.25s;
-}
-
-.enemy-hp{
-    position:absolute;
-    width:70px;
-    height:6px;
-    background:#200;
-    border:1px solid #000;
-    border-radius:5px;
-    overflow:hidden;
-    pointer-events:none;
-}
-
-.enemy-hp div{
-    height:100%;
-    background:#f22;
-    width:100%;
-}
-
-@media(max-width:700px){
-    #status{
-        width:280px;
-        top:8px;
-        left:8px;
+@media(max-width:700px) {
+    #stats {
+        width: 260px;
+        transform: scale(.85);
+        transform-origin: top left;
     }
 
-    #quest{
-        display:none;
+    #quest {
+        width: 230px;
+        transform: scale(.8);
+        transform-origin: top right;
     }
 
-    .slot{
-        width:65px;
-        min-height:62px;
+    #controls {
+        display: none;
     }
 
-    .skill{
-        font-size:8px;
+    #hotbar {
+        gap: 4px;
+        padding: 5px;
     }
 
-    #controls{
-        display:none;
+    .skill {
+        width: 65px;
+        min-height: 60px;
     }
 
-    #center-message{
-        font-size:20px;
+    .skill .name {
+        font-size: 8px;
     }
 }
 </style>
@@ -407,7 +335,7 @@ body{
 
 <div id="ui">
 
-    <div id="status" class="panel">
+    <div id="stats" class="panel">
         <div class="title">
             NÍVEL <span id="level">1</span>
             |
@@ -415,123 +343,83 @@ body{
         </div>
 
         <div class="bar">
-            <div id="hp-fill" class="bar-fill"></div>
-        </div>
-
-        <div class="status-row">
-            <span>HP</span>
-            <span id="hp-text">150 / 150</span>
+            <div id="hp-fill"></div>
         </div>
 
         <div class="bar">
-            <div id="energy-fill" class="bar-fill"></div>
+            <div id="xp-fill"></div>
         </div>
 
-        <div class="status-row">
-            <span>Energia</span>
-            <span id="energy-text">100 / 100</span>
+        <div class="info">
+            <span>HP: <b id="hp-text">150/150</b></span>
+            <span>Beli: $<b id="beli">5000</b></span>
         </div>
 
-        <div class="bar">
-            <div id="xp-fill" class="bar-fill"></div>
-        </div>
-
-        <div class="status-row">
-            <span>XP</span>
-            <span id="xp-text">0 / 100</span>
-        </div>
-
-        <div class="status-row">
-            <span>Beli</span>
-            <span>$<span id="beli">5000</span></span>
+        <div id="fruit-info">
+            Fruta: Fênix
         </div>
     </div>
 
     <div id="quest" class="panel">
-        <div class="quest-title">📜 MISSÃO</div>
-
+        <h3>📜 MISSÃO</h3>
         <div id="quest-text">
-            Fale com o NPC Azul usando E.
-        </div>
-
-        <div style="margin-top:8px;color:#ffb300;font-size:12px;font-weight:bold">
-            <span id="quest-progress">Nenhuma missão ativa</span>
+            Fale com o NPC azul usando E.
         </div>
     </div>
 
-    <div id="notification">
-        Mensagem
-    </div>
-
-    <div id="center-message">
-        HABILIDADE
-    </div>
-
-    <div id="combo">
-        COMBO x<span id="combo-number">0</span>
-    </div>
+    <div id="npc-message"></div>
 
     <div id="interaction">
-        Pressione E para interagir
-    </div>
-
-    <div id="hotbar" class="panel">
-
-        <div class="slot" id="slot-z">
-            <div class="key">Z</div>
-            <div class="skill" id="skill-z">Skill Z</div>
-            <div class="cd" id="cd-z"></div>
-        </div>
-
-        <div class="slot" id="slot-x">
-            <div class="key">X</div>
-            <div class="skill" id="skill-x">Skill X</div>
-            <div class="cd" id="cd-x"></div>
-        </div>
-
-        <div class="slot" id="slot-c">
-            <div class="key">C</div>
-            <div class="skill" id="skill-c">Skill C</div>
-            <div class="cd" id="cd-c"></div>
-        </div>
-
-        <div class="slot" id="slot-v">
-            <div class="key">V</div>
-            <div class="skill" id="skill-v">Skill V</div>
-            <div class="cd" id="cd-v"></div>
-        </div>
-
-        <div class="slot" id="slot-f">
-            <div class="key">F</div>
-            <div class="skill" id="skill-f">Skill F</div>
-            <div class="cd" id="cd-f"></div>
-        </div>
-
-    </div>
-
-    <div id="controls" class="panel">
-        <b>WASD</b> — Movimento |
-        <b>Espaço</b> — Pular |
-        <b>Z X C V F</b> — Skills |
-        <b>E</b> — Interagir<br>
-        NPC Roxo — Loja de Frutas |
-        NPC Azul — Missão
+        Pressione <b>E</b> para interagir
     </div>
 
     <div id="fruit-menu">
-
-        <div class="menu-header">
-            <h2>🍎 MERCADO DE FRUTAS</h2>
-            <button class="close" onclick="closeFruitMenu()">FECHAR</button>
-        </div>
-
-        <div style="font-size:12px;color:#aaa;margin-bottom:15px">
-            Escolha uma fruta. Cada fruta possui 5 habilidades.
-            A compra troca sua fruta atual.
-        </div>
+        <h2>🍎 MERCADO DE FRUTAS</h2>
+        <p>Escolha uma fruta para equipar.</p>
 
         <div id="fruit-grid" class="fruit-grid"></div>
 
+        <button id="close-menu">FECHAR</button>
+    </div>
+
+    <div id="hotbar">
+        <div class="skill active" id="skill-z">
+            <div class="key">Z</div>
+            <div class="name"></div>
+            <div class="cd"></div>
+        </div>
+
+        <div class="skill" id="skill-x">
+            <div class="key">X</div>
+            <div class="name"></div>
+            <div class="cd"></div>
+        </div>
+
+        <div class="skill" id="skill-c">
+            <div class="key">C</div>
+            <div class="name"></div>
+            <div class="cd"></div>
+        </div>
+
+        <div class="skill" id="skill-v">
+            <div class="key">V</div>
+            <div class="name"></div>
+            <div class="cd"></div>
+        </div>
+
+        <div class="skill" id="skill-f">
+            <div class="key">F</div>
+            <div class="name"></div>
+            <div class="cd"></div>
+        </div>
+    </div>
+
+    <div id="controls">
+        <b>WASD</b> — Movimento<br>
+        <b>Espaço</b> — Pular<br>
+        <b>Z X C V F</b> — Skills<br>
+        <b>E</b> — Interagir<br>
+        <b>Mouse</b> — Câmera
     </div>
 
 </div>
@@ -540,458 +428,160 @@ body{
 
 <script>
 
-/* ============================================================
-   CONFIGURAÇÕES
-============================================================ */
-
-const GROUND_Y = 4.8;
-
-const keys = {};
-
-const cooldowns = {};
-
-let audioCtx = null;
-
-let messageTimer = null;
-
-let comboTimer = null;
-
-
-/* ============================================================
+/* =========================================================
    FRUTAS
-   TODAS POSSUEM 5 SKILLS
-============================================================ */
+========================================================= */
 
 const FRUITS = {
 
     phoenix: {
-
-        name:"Fênix",
-
-        type:"Mythical",
-
-        color:"#00eaff",
-
-        price:5000,
-
-        skills:{
-
-            z:{
-                name:"Garras do Renascimento",
-                cd:2,
-                damage:65
-            },
-
-            x:{
-                name:"Erupção Vital",
-                cd:4,
-                damage:90
-            },
-
-            c:{
-                name:"Asas Celestes",
-                cd:6,
-                damage:110
-            },
-
-            v:{
-                name:"Chama da Imortalidade",
-                cd:10,
-                damage:160
-            },
-
-            f:{
-                name:"Fênix Suprema",
-                cd:15,
-                damage:240
-            }
-
+        name: "Fênix",
+        type: "Mythical Zoan",
+        color: "#00eaff",
+        skills: {
+            z: {name:"Garras Celestes", cd:2, damage:35},
+            x: {name:"Chama Regenerativa", cd:4, damage:45},
+            c: {name:"Investida Alada", cd:5, damage:65},
+            v: {name:"Explosão Fênix", cd:9, damage:100},
+            f: {name:"Renascimento Supremo", cd:15, damage:150}
         }
-
     },
 
-
-    dragon:{
-
-        name:"Dragão",
-
-        type:"Mythical",
-
-        color:"#b000ff",
-
-        price:8500,
-
-        skills:{
-
-            z:{
-                name:"Garra do Dragão",
-                cd:2,
-                damage:75
-            },
-
-            x:{
-                name:"Sopro Incandescente",
-                cd:4,
-                damage:110
-            },
-
-            c:{
-                name:"Rugido do Trovão",
-                cd:6,
-                damage:130
-            },
-
-            v:{
-                name:"Tempestade Dracônica",
-                cd:10,
-                damage:190
-            },
-
-            f:{
-                name:"Dragão Imperial",
-                cd:15,
-                damage:280
-            }
-
+    dragon: {
+        name: "Dragão",
+        type: "Mythical Zoan",
+        color: "#a000ff",
+        skills: {
+            z: {name:"Garra do Dragão", cd:2, damage:45},
+            x: {name:"Sopro de Fogo", cd:4, damage:70},
+            c: {name:"Rugido Imperial", cd:5, damage:85},
+            v: {name:"Tempestade Dracônica", cd:10, damage:130},
+            f: {name:"Dragão Celestial", cd:16, damage:190}
         }
-
     },
 
-
-    dough:{
-
-        name:"Massa",
-
-        type:"Mythical",
-
-        color:"#ffb6c1",
-
-        price:12000,
-
-        skills:{
-
-            z:{
-                name:"Punho de Massa",
-                cd:2,
-                damage:80
-            },
-
-            x:{
-                name:"Meteoro de Donuts",
-                cd:4,
-                damage:110
-            },
-
-            c:{
-                name:"Chicote Pegajoso",
-                cd:5,
-                damage:125
-            },
-
-            v:{
-                name:"Barragem de Massa",
-                cd:9,
-                damage:190
-            },
-
-            f:{
-                name:"Despertar Mochi Supremo",
-                cd:14,
-                damage:300
-            }
-
+    distortion: {
+        name: "Distorção",
+        type: "Paramecia",
+        color: "#8a2be2",
+        skills: {
+            z: {name:"Fenda Espacial", cd:2, damage:40},
+            x: {name:"Buraco Negro", cd:5, damage:75},
+            c: {name:"Troca Dimensional", cd:6, damage:80},
+            v: {name:"Colapso Espacial", cd:11, damage:135},
+            f: {name:"Dimensão Absoluta", cd:17, damage:200}
         }
-
     },
 
-
-    distortion:{
-
-        name:"Distorção",
-
-        type:"Paramecia",
-
-        color:"#9c27ff",
-
-        price:7000,
-
-        skills:{
-
-            z:{
-                name:"Fenda Espacial",
-                cd:2,
-                damage:70
-            },
-
-            x:{
-                name:"Colapso Gravitacional",
-                cd:4,
-                damage:105
-            },
-
-            c:{
-                name:"Dobra de Matéria",
-                cd:6,
-                damage:120
-            },
-
-            v:{
-                name:"Buraco Negro",
-                cd:10,
-                damage:180
-            },
-
-            f:{
-                name:"Singularidade Absoluta",
-                cd:15,
-                damage:270
-            }
-
+    ice: {
+        name: "Gelo Glacial",
+        type: "Logia",
+        color: "#00ffff",
+        skills: {
+            z: {name:"Lança Glacial", cd:2, damage:35},
+            x: {name:"Espinhos de Gelo", cd:4, damage:55},
+            c: {name:"Dragão Congelante", cd:6, damage:90},
+            v: {name:"Tempestade de Gelo", cd:10, damage:125},
+            f: {name:"Era Glacial", cd:15, damage:180}
         }
-
     },
 
-
-    sound:{
-
-        name:"Som Sônico",
-
-        type:"Paramecia",
-
-        color:"#ffff00",
-
-        price:6000,
-
-        skills:{
-
-            z:{
-                name:"Grito de Impacto",
-                cd:2,
-                damage:60
-            },
-
-            x:{
-                name:"Pulso Sísmico",
-                cd:4,
-                damage:95
-            },
-
-            c:{
-                name:"Feixe de Frequência",
-                cd:6,
-                damage:120
-            },
-
-            v:{
-                name:"Onda Supersônica",
-                cd:9,
-                damage:175
-            },
-
-            f:{
-                name:"Ressonância Suprema",
-                cd:14,
-                damage:260
-            }
-
+    flame: {
+        name: "Chama Solar",
+        type: "Logia",
+        color: "#ff4500",
+        skills: {
+            z: {name:"Punho Flamejante", cd:2, damage:40},
+            x: {name:"Coluna Solar", cd:4, damage:65},
+            c: {name:"Meteoros de Fogo", cd:6, damage:85},
+            v: {name:"Inferno Solar", cd:10, damage:135},
+            f: {name:"Supernova", cd:16, damage:210}
         }
-
     },
 
-
-    ice:{
-
-        name:"Gelo Glacial",
-
-        type:"Logia",
-
-        color:"#00ffff",
-
-        price:4500,
-
-        skills:{
-
-            z:{
-                name:"Lança Glacial",
-                cd:2,
-                damage:65
-            },
-
-            x:{
-                name:"Espinhos de Gelo",
-                cd:4,
-                damage:90
-            },
-
-            c:{
-                name:"Dragão Congelante",
-                cd:6,
-                damage:120
-            },
-
-            v:{
-                name:"Tempestade Glacial",
-                cd:10,
-                damage:180
-            },
-
-            f:{
-                name:"Era do Gelo Absoluta",
-                cd:15,
-                damage:250
-            }
-
+    dough: {
+        name: "Dough / Massa",
+        type: "Special Paramecia",
+        color: "#ffcc88",
+        skills: {
+            z: {name:"Massa Chicote", cd:2, damage:45},
+            x: {name:"Punho Donut", cd:4, damage:70},
+            c: {name:"Massa Espinhosa", cd:6, damage:90},
+            v: {name:"Tempestade de Donuts", cd:11, damage:145},
+            f: {name:"Despertar da Massa", cd:17, damage:220}
         }
-
-    },
-
-
-    flame:{
-
-        name:"Chama Solar",
-
-        type:"Logia",
-
-        color:"#ff4500",
-
-        price:4000,
-
-        skills:{
-
-            z:{
-                name:"Punho de Fogo",
-                cd:2,
-                damage:65
-            },
-
-            x:{
-                name:"Coluna Solar",
-                cd:4,
-                damage:95
-            },
-
-            c:{
-                name:"Imperador das Chamas",
-                cd:6,
-                damage:125
-            },
-
-            v:{
-                name:"Erupção Vulcânica",
-                cd:10,
-                damage:180
-            },
-
-            f:{
-                name:"Sol Destruidor",
-                cd:15,
-                damage:260
-            }
-
-        }
-
     }
 
 };
 
 
-/* ============================================================
-   DADOS DO JOGADOR
-============================================================ */
+/* =========================================================
+   VARIÁVEIS DO JOGO
+========================================================= */
 
 const playerData = {
+    level: 1,
+    xp: 0,
+    maxXp: 100,
 
-    level:1,
+    hp: 150,
+    maxHp: 150,
 
-    xp:0,
+    beli: 5000,
 
-    maxXp:100,
+    currentFruit: "phoenix",
 
-    hp:150,
+    speed: 0.35,
+    vy: 0,
+    grounded: true,
 
-    maxHp:150,
+    questActive: false,
+    questKills: 0,
 
-    energy:100,
+    attack: false,
 
-    maxEnergy:100,
-
-    beli:5000,
-
-    currentFruit:"phoenix",
-
-    questActive:false,
-
-    questKills:0,
-
-    questGoal:5,
-
-    speed:.30,
-
-    vy:0,
-
-    grounded:true,
-
-    combo:0,
-
-    attackLock:false
-
+    nearbyNPC: null
 };
 
+const keys = {};
+const cooldowns = {};
 
-/* ============================================================
-   CENA
-============================================================ */
+let cameraYaw = 0;
+let cameraPitch = 0.35;
+let mouseDown = false;
+
+const enemies = [];
+const effects = [];
+
+
+/* =========================================================
+   THREE.JS
+========================================================= */
 
 const scene = new THREE.Scene();
 
-/*
-   IMPORTANTE:
-   O background é definido explicitamente.
-   Isso evita o canvas transparente/negro em máquinas
-   onde a cena ainda não recebeu iluminação.
-*/
+scene.background = new THREE.Color(0x263b5c);
 
-scene.background = new THREE.Color(0x071321);
-
-scene.fog = new THREE.FogExp2(
-    0x071321,
-    0.008
+scene.fog = new THREE.Fog(
+    0x263b5c,
+    100,
+    600
 );
-
-
-/* ============================================================
-   CÂMERA
-============================================================ */
 
 const camera = new THREE.PerspectiveCamera(
     60,
-    Math.max(window.innerWidth,1) /
-    Math.max(window.innerHeight,1),
+    window.innerWidth / window.innerHeight,
     0.1,
-    1500
+    2000
 );
 
-camera.position.set(
-    0,
-    15,
-    24
-);
+camera.position.set(0,20,35);
 
-
-/* ============================================================
-   RENDERER
-============================================================ */
 
 const renderer = new THREE.WebGLRenderer({
-
     antialias:true,
-
     alpha:false,
-
-    powerPreference:"high-performance",
-
-    logarithmicDepthBuffer:false
-
+    powerPreference:"high-performance"
 });
 
 renderer.setPixelRatio(
@@ -999,44 +589,30 @@ renderer.setPixelRatio(
 );
 
 renderer.setSize(
-    Math.max(window.innerWidth,1),
-    Math.max(window.innerHeight,1),
-    false
+    window.innerWidth,
+    window.innerHeight
 );
+
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 renderer.outputEncoding = THREE.sRGBEncoding;
 
-renderer.shadowMap.enabled = true;
+const container =
+    document.getElementById("canvas-container");
 
-renderer.shadowMap.type =
-    THREE.PCFSoftShadowMap;
-
-renderer.setClearColor(
-    0x071321,
-    1
-);
-
-document
-    .getElementById("canvas-container")
-    .appendChild(renderer.domElement);
+container.innerHTML = "";
+container.appendChild(renderer.domElement);
 
 
-/* ============================================================
-   ILUMINAÇÃO
-============================================================ */
-
-const ambient = new THREE.AmbientLight(
-    0xffffff,
-    1.25
-);
-
-scene.add(ambient);
-
+/* =========================================================
+   LUZ
+========================================================= */
 
 const hemi = new THREE.HemisphereLight(
-    0x66ccff,
-    0x18200f,
-    1.1
+    0xffffff,
+    0x304060,
+    2.5
 );
 
 scene.add(hemi);
@@ -1044,408 +620,275 @@ scene.add(hemi);
 
 const sun = new THREE.DirectionalLight(
     0xffffff,
-    2
+    3
 );
 
 sun.position.set(
     80,
     130,
-    60
+    70
 );
 
 sun.castShadow = true;
 
 sun.shadow.mapSize.width = 2048;
-
 sun.shadow.mapSize.height = 2048;
-
-sun.shadow.camera.left = -150;
-sun.shadow.camera.right = 150;
-sun.shadow.camera.top = 150;
-sun.shadow.camera.bottom = -150;
 
 scene.add(sun);
 
 
-/* ============================================================
-   TEXTURAS PROCEDURAIS
-============================================================ */
+const blueLight = new THREE.PointLight(
+    0x44aaff,
+    100,
+    200
+);
 
-function makeTerrainTexture(){
+blueLight.position.set(
+    0,
+    40,
+    30
+);
 
-    const canvas =
-        document.createElement("canvas");
-
-    canvas.width=512;
-    canvas.height=512;
-
-    const ctx =
-        canvas.getContext("2d");
-
-    ctx.fillStyle="#263b2b";
-
-    ctx.fillRect(0,0,512,512);
-
-    for(let i=0;i<1500;i++){
-
-        const colors=[
-            "#304d36",
-            "#385b3e",
-            "#1d3025",
-            "#526e43",
-            "#233b2b"
-        ];
-
-        ctx.fillStyle=
-            colors[
-                Math.floor(
-                    Math.random()*colors.length
-                )
-            ];
-
-        const s=
-            Math.random()*5+1;
-
-        ctx.fillRect(
-            Math.random()*512,
-            Math.random()*512,
-            s,
-            s
-        );
-
-    }
-
-    const tex =
-        new THREE.CanvasTexture(canvas);
-
-    tex.wrapS=
-        THREE.RepeatWrapping;
-
-    tex.wrapT=
-        THREE.RepeatWrapping;
-
-    tex.repeat.set(12,12);
-
-    return tex;
-}
+scene.add(blueLight);
 
 
-const terrainTexture =
-    makeTerrainTexture();
-
-
-/* ============================================================
-   OCEANO
-============================================================ */
+/* =========================================================
+   MUNDO
+========================================================= */
 
 const oceanMaterial =
     new THREE.MeshStandardMaterial({
-
-        color:0x063a65,
-
-        roughness:.15,
-
-        metalness:.35,
-
-        transparent:false
-
+        color:0x087ca8,
+        roughness:.2,
+        metalness:.5
     });
-
 
 const ocean =
     new THREE.Mesh(
-
-        new THREE.PlaneGeometry(
-            1000,
-            1000
-        ),
-
+        new THREE.PlaneGeometry(1000,1000),
         oceanMaterial
-
     );
 
-ocean.rotation.x=
-    -Math.PI/2;
+ocean.rotation.x = -Math.PI/2;
+ocean.position.y = -2;
 
-ocean.position.y=
-    0;
-
-ocean.receiveShadow=true;
+ocean.receiveShadow = true;
 
 scene.add(ocean);
 
 
-/* ============================================================
-   ILHA
-============================================================ */
+const islandMaterial =
+    new THREE.MeshStandardMaterial({
+        color:0x3c5b3a,
+        roughness:.9
+    });
 
 const island =
     new THREE.Mesh(
-
         new THREE.CylinderGeometry(
             65,
-            72,
-            5,
+            70,
+            6,
             48
         ),
-
-        new THREE.MeshStandardMaterial({
-
-            map:terrainTexture,
-
-            roughness:.95
-
-        })
-
+        islandMaterial
     );
 
-island.position.y=
-    2.5;
+island.position.y = 1;
 
-island.receiveShadow=true;
-
-island.castShadow=true;
+island.receiveShadow = true;
 
 scene.add(island);
 
 
-/* ============================================================
+/* =========================================================
    DECORAÇÃO
-============================================================ */
+========================================================= */
 
-function createTree(x,z){
+function createTree(x,z) {
 
-    const tree =
-        new THREE.Group();
-
+    const group = new THREE.Group();
 
     const trunk =
         new THREE.Mesh(
-
             new THREE.CylinderGeometry(
                 .45,
                 .65,
                 4,
                 8
             ),
-
             new THREE.MeshStandardMaterial({
-                color:0x633b1d
+                color:0x714b2a
             })
-
         );
 
-    trunk.position.y=
-        GROUND_Y+2;
+    trunk.position.y = 5;
 
-    trunk.castShadow=true;
+    trunk.castShadow = true;
 
-    tree.add(trunk);
+    group.add(trunk);
 
 
-    const crown =
+    const leaves =
         new THREE.Mesh(
-
             new THREE.SphereGeometry(
-                2.5,
+                2.7,
                 12,
                 12
             ),
-
             new THREE.MeshStandardMaterial({
-                color:0x137a3a
+                color:0x168238
             })
-
         );
 
-    crown.position.y=
-        GROUND_Y+5;
+    leaves.position.y = 7;
 
-    crown.castShadow=true;
+    leaves.castShadow = true;
 
-    tree.add(crown);
+    group.add(leaves);
 
+    group.position.set(x,0,z);
 
-    tree.position.set(
-        x,
-        0,
-        z
-    );
-
-    scene.add(tree);
-
+    scene.add(group);
 }
 
 
-[
-    [-35,-30],
-    [-25,28],
-    [30,-25],
-    [35,25],
-    [-42,0],
-    [42,0],
-    [0,-40],
-    [0,40],
-    [25,40],
-    [-25,-40]
-].forEach(
-    p=>createTree(p[0],p[1])
-);
+for(let i=0;i<35;i++) {
+
+    const angle =
+        Math.random()*Math.PI*2;
+
+    const radius =
+        15 + Math.random()*45;
+
+    createTree(
+        Math.cos(angle)*radius,
+        Math.sin(angle)*radius
+    );
+}
 
 
-/* ============================================================
-   PERSONAGEM ROBLOX
-============================================================ */
+/* =========================================================
+   PERSONAGEM
+========================================================= */
 
 function createCharacter(
-    skin=0xffcc99,
-    shirt=0x00aaff
-){
+    skinColor,
+    shirtColor
+) {
 
-    const group =
-        new THREE.Group();
+    const group = new THREE.Group();
 
-
-    const skinMat =
+    const skin =
         new THREE.MeshStandardMaterial({
-            color:skin,
-            roughness:.65
+            color:skinColor,
+            roughness:.7
         });
 
-
-    const shirtMat =
+    const shirt =
         new THREE.MeshStandardMaterial({
-            color:shirt,
+            color:shirtColor,
             roughness:.6
         });
 
 
     const torso =
         new THREE.Mesh(
-
             new THREE.BoxGeometry(
                 1.5,
                 1.8,
-                .75
+                .8
             ),
-
-            shirtMat
-
+            shirt
         );
 
-    torso.position.y=
-        1.8;
+    torso.position.y = 4.1;
 
-    torso.castShadow=true;
+    torso.castShadow = true;
 
     group.add(torso);
 
 
     const head =
         new THREE.Mesh(
-
             new THREE.BoxGeometry(
-                1.25,
-                1.25,
-                1.25
+                1.2,
+                1.2,
+                1.2
             ),
-
-            skinMat
-
+            skin
         );
 
-    head.position.y=
-        3.35;
+    head.position.y = 5.7;
 
-    head.castShadow=true;
+    head.castShadow = true;
 
     group.add(head);
 
 
     const armL =
         new THREE.Mesh(
-
             new THREE.BoxGeometry(
-                .5,
-                1.6,
-                .5
+                .45,
+                1.7,
+                .45
             ),
-
-            shirtMat
-
+            shirt
         );
 
     armL.position.set(
-        -1,
-        1.8,
+        -1.05,
+        4.05,
         0
     );
 
-    armL.castShadow=true;
+    armL.castShadow = true;
 
     group.add(armL);
 
 
-    const armR =
-        armL.clone();
+    const armR = armL.clone();
 
-    armR.position.x=
-        1;
+    armR.position.x = 1.05;
 
     group.add(armR);
 
 
     const legL =
         new THREE.Mesh(
-
             new THREE.BoxGeometry(
                 .55,
                 1.8,
                 .55
             ),
-
-            skinMat
-
+            skin
         );
 
     legL.position.set(
         -.4,
-        .3,
+        2.25,
         0
     );
 
-    legL.castShadow=true;
+    legL.castShadow = true;
 
     group.add(legL);
 
 
-    const legR =
-        legL.clone();
+    const legR = legL.clone();
 
-    legR.position.x=
-        .4;
+    legR.position.x = .4;
 
     group.add(legR);
 
 
-    group.parts={
-        torso,
-        head,
-        armL,
-        armR,
-        legL,
-        legR
-    };
-
-
     return group;
-
 }
 
 
-/* ============================================================
+/* =========================================================
    PLAYER
-============================================================ */
+========================================================= */
 
 const player =
     createCharacter(
@@ -1455,90 +898,89 @@ const player =
 
 player.position.set(
     0,
-    GROUND_Y,
-    10
+    0,
+    15
 );
 
 scene.add(player);
 
 
-/* ============================================================
-   NPCs
-============================================================ */
+/* =========================================================
+   NPC
+========================================================= */
 
-const npcQuest =
-    createCharacter(
-        0xffcc99,
-        0x0055ff
+function createNPC(
+    x,
+    z,
+    color,
+    name
+) {
+
+    const npc =
+        createCharacter(
+            0xffcc99,
+            color
+        );
+
+    npc.position.set(
+        x,
+        0,
+        z
     );
 
-npcQuest.position.set(
-    -10,
-    GROUND_Y,
-    -10
-);
+    npc.userData.npc = name;
 
-scene.add(npcQuest);
+    scene.add(npc);
+
+    return npc;
+}
 
 
-const npcFruit =
-    createCharacter(
-        0xffcc99,
-        0xb000ff
+const fruitNPC =
+    createNPC(
+        10,
+        -10,
+        0xb000ff,
+        "fruit"
     );
 
-npcFruit.position.set(
-    10,
-    GROUND_Y,
-    -10
-);
 
-scene.add(npcFruit);
+const questNPC =
+    createNPC(
+        -10,
+        -10,
+        0x0055ff,
+        "quest"
+    );
 
 
-/* ============================================================
-   BALÕES DOS NPCs
-============================================================ */
+/* =========================================================
+   PLACA NPC
+========================================================= */
 
-function createNpcMarker(
+function createLabel(
     text,
     color,
     position
-){
+) {
 
     const canvas =
         document.createElement("canvas");
 
-    canvas.width=512;
-    canvas.height=128;
+    canvas.width = 512;
+    canvas.height = 128;
 
-    const ctx=
+    const ctx =
         canvas.getContext("2d");
 
-    ctx.fillStyle="rgba(0,0,0,.75)";
+    ctx.fillStyle = "rgba(0,0,0,.75)";
+    ctx.fillRect(0,0,512,128);
 
-    ctx.roundRect(
-        10,
-        10,
-        492,
-        108,
-        25
-    );
+    ctx.font = "bold 42px Arial";
 
-    ctx.fill();
+    ctx.textAlign = "center";
 
-    ctx.strokeStyle=color;
-
-    ctx.lineWidth=5;
-
-    ctx.stroke();
-
-    ctx.fillStyle=color;
-
-    ctx.font=
-        "bold 34px Arial";
-
-    ctx.textAlign="center";
+    ctx.fillStyle = color;
 
     ctx.fillText(
         text,
@@ -1546,22 +988,21 @@ function createNpcMarker(
         78
     );
 
-    const texture=
+    const texture =
         new THREE.CanvasTexture(canvas);
 
-    const sprite=
-        new THREE.Sprite(
+    const material =
+        new THREE.SpriteMaterial({
+            map:texture,
+            transparent:true
+        });
 
-            new THREE.SpriteMaterial({
-                map:texture,
-                transparent:true
-            })
-
-        );
+    const sprite =
+        new THREE.Sprite(material);
 
     sprite.scale.set(
-        6,
-        1.5,
+        5,
+        1.25,
         1
     );
 
@@ -1570,1677 +1011,677 @@ function createNpcMarker(
     scene.add(sprite);
 
     return sprite;
-
 }
 
 
-createNpcMarker(
-    "MISSÕES [E]",
+createLabel(
+    "🍎 FRUTAS",
+    "#ff00ff",
+    new THREE.Vector3(10,8,-10)
+);
+
+
+createLabel(
+    "📜 MISSÃO",
     "#00aaff",
-    new THREE.Vector3(
-        -10,
-        GROUND_Y+5.5,
-        -10
-    )
+    new THREE.Vector3(-10,8,-10)
 );
 
 
-createNpcMarker(
-    "FRUTAS [E]",
-    "#e040fb",
-    new THREE.Vector3(
-        10,
-        GROUND_Y+5.5,
-        -10
-    )
-);
-
-
-/* ============================================================
+/* =========================================================
    INIMIGOS
-============================================================ */
+========================================================= */
 
-const enemies=[];
+function spawnEnemy(x,z) {
 
-
-function spawnEnemy(x,z){
-
-    const enemy=
+    const enemy =
         createCharacter(
-            0xff9999,
-            0x333333
+            0xffaa88,
+            0x242424
         );
 
     enemy.position.set(
         x,
-        GROUND_Y,
+        0,
         z
     );
 
-    enemy.hp=100;
+    enemy.userData.hp = 100;
+    enemy.userData.maxHp = 100;
 
-    enemy.maxHp=100;
+    enemy.userData.spawnX = x;
+    enemy.userData.spawnZ = z;
 
-    enemy.spawn={
-        x,
-        z
-    };
-
-    enemy.alive=true;
+    enemy.userData.dead = false;
 
     scene.add(enemy);
 
     enemies.push(enemy);
-
 }
 
 
-spawnEnemy(18,5);
-spawnEnemy(-18,5);
-spawnEnemy(20,-18);
-spawnEnemy(-20,-18);
-spawnEnemy(0,-25);
-spawnEnemy(28,15);
+spawnEnemy(20,5);
+spawnEnemy(-20,5);
+spawnEnemy(25,-15);
+spawnEnemy(-25,-15);
+spawnEnemy(0,-30);
+spawnEnemy(30,25);
+spawnEnemy(-30,25);
 
 
-/* ============================================================
+/* =========================================================
    EFEITOS
-============================================================ */
+========================================================= */
 
-function createEffect(
+function effectSphere(
     position,
     color,
-    size=2,
-    life=500
-){
+    size,
+    duration
+) {
 
-    const mesh=
+    const mesh =
         new THREE.Mesh(
-
             new THREE.SphereGeometry(
                 size,
-                16,
-                16
+                20,
+                20
             ),
-
             new THREE.MeshBasicMaterial({
-
-                color,
-
+                color:color,
                 transparent:true,
-
                 opacity:.75
-
             })
-
         );
 
     mesh.position.copy(position);
 
     scene.add(mesh);
 
-    const start=
-        performance.now();
-
-    function animateEffect(){
-
-        const elapsed=
-            performance.now()-start;
-
-        const progress=
-            elapsed/life;
-
-        if(progress>=1){
-
-            scene.remove(mesh);
-
-            return;
-
-        }
-
-        mesh.scale.setScalar(
-            1+progress*2
-        );
-
-        mesh.material.opacity=
-            .75*(1-progress);
-
-        requestAnimationFrame(
-            animateEffect
-        );
-
-    }
-
-    animateEffect();
-
-    return mesh;
-
+    effects.push({
+        mesh,
+        life:duration,
+        max:duration,
+        grow:size*.04
+    });
 }
 
 
-function createRing(
+function effectRing(
     position,
     color,
-    radius,
-    life=500
-){
+    size,
+    duration
+) {
 
-    const ring=
+    const mesh =
         new THREE.Mesh(
-
-            new THREE.RingGeometry(
-                radius*.7,
-                radius,
+            new THREE.TorusGeometry(
+                size,
+                .15,
+                8,
                 32
             ),
-
             new THREE.MeshBasicMaterial({
-
-                color,
-
+                color:color,
                 transparent:true,
-
-                opacity:.8,
-
-                side:THREE.DoubleSide
-
+                opacity:.9
             })
-
         );
 
-    ring.rotation.x=
-        -Math.PI/2;
+    mesh.rotation.x =
+        Math.PI/2;
 
-    ring.position.copy(position);
+    mesh.position.copy(position);
 
-    scene.add(ring);
+    scene.add(mesh);
 
-    const start=
-        performance.now();
-
-    function animate(){
-
-        const p=
-            (performance.now()-start)/life;
-
-        if(p>=1){
-
-            scene.remove(ring);
-
-            return;
-
-        }
-
-        ring.scale.setScalar(
-            1+p*2
-        );
-
-        ring.material.opacity=
-            .8*(1-p);
-
-        requestAnimationFrame(
-            animate
-        );
-
-    }
-
-    animate();
-
+    effects.push({
+        mesh,
+        life:duration,
+        max:duration,
+        grow:.08
+    });
 }
 
 
-/* ============================================================
-   ÁUDIO
-============================================================ */
-
-function playSound(
-    frequency=400,
-    duration=.15,
-    type="sine"
-){
-
-    try{
-
-        if(!audioCtx){
-
-            audioCtx=
-                new (
-                    window.AudioContext ||
-                    window.webkitAudioContext
-                )();
-
-        }
-
-        if(audioCtx.state==="suspended"){
-            audioCtx.resume();
-        }
-
-        const osc=
-            audioCtx.createOscillator();
-
-        const gain=
-            audioCtx.createGain();
-
-        osc.type=type;
-
-        osc.frequency.value=
-            frequency;
-
-        gain.gain.setValueAtTime(
-            .18,
-            audioCtx.currentTime
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-            .001,
-            audioCtx.currentTime+duration
-        );
-
-        osc.connect(gain);
-
-        gain.connect(
-            audioCtx.destination
-        );
-
-        osc.start();
-
-        osc.stop(
-            audioCtx.currentTime+duration
-        );
-
-    }catch(e){}
-
-}
-
-
-/* ============================================================
-   UI
-============================================================ */
-
-function updateUI(){
-
-    const fruit=
-        FRUITS[playerData.currentFruit];
-
-
-    document.getElementById(
-        "level"
-    ).textContent=
-        playerData.level;
-
-
-    document.getElementById(
-        "fruit-name"
-    ).textContent=
-        fruit.name;
-
-
-    document.getElementById(
-        "fruit-name"
-    ).style.color=
-        fruit.color;
-
-
-    document.getElementById(
-        "hp-text"
-    ).textContent=
-        Math.ceil(playerData.hp)+
-        " / "+
-        playerData.maxHp;
-
-
-    document.getElementById(
-        "energy-text"
-    ).textContent=
-        Math.ceil(playerData.energy)+
-        " / "+
-        playerData.maxEnergy;
-
-
-    document.getElementById(
-        "xp-text"
-    ).textContent=
-        playerData.xp+
-        " / "+
-        playerData.maxXp;
-
-
-    document.getElementById(
-        "beli"
-    ).textContent=
-        playerData.beli;
-
-
-    document.getElementById(
-        "hp-fill"
-    ).style.width=
-        (
-            playerData.hp/
-            playerData.maxHp*100
-        )+"%";
-
-
-    document.getElementById(
-        "energy-fill"
-    ).style.width=
-        (
-            playerData.energy/
-            playerData.maxEnergy*100
-        )+"%";
-
-
-    document.getElementById(
-        "xp-fill"
-    ).style.width=
-        (
-            playerData.xp/
-            playerData.maxXp*100
-        )+"%";
-
-
-    for(
-        const slot of ["z","x","c","v","f"]
-    ){
-
-        document.getElementById(
-            "skill-"+slot
-        ).textContent=
-            fruit.skills[slot].name;
-
-    }
-
-}
-
-
-/* ============================================================
-   MENSAGENS
-============================================================ */
-
-function showMessage(text){
-
-    const el=
-        document.getElementById(
-            "center-message"
-        );
-
-    el.textContent=text;
-
-    el.style.opacity="1";
-
-    clearTimeout(messageTimer);
-
-    messageTimer=
-        setTimeout(
-            ()=>{
-                el.style.opacity="0";
-            },
-            1600
-        );
-
-}
-
-
-function notify(text){
-
-    const el=
-        document.getElementById(
-            "notification"
-        );
-
-    el.textContent=text;
-
-    el.style.opacity="1";
-
-    setTimeout(
-        ()=>{
-            el.style.opacity="0";
-        },
-        1800
-    );
-
-}
-
-
-/* ============================================================
+/* =========================================================
    DANO
-============================================================ */
+========================================================= */
 
 function damageEnemies(
     position,
     radius,
     damage
-){
+) {
 
-    let hits=0;
+    enemies.forEach(enemy => {
 
-
-    enemies.forEach(enemy=>{
-
-        if(!enemy.alive)
+        if(enemy.userData.dead)
             return;
 
-
-        const distance=
+        const distance =
             enemy.position.distanceTo(
                 position
             );
 
+        if(distance <= radius) {
 
-        if(distance<=radius){
+            enemy.userData.hp -= damage;
 
-            enemy.hp-=damage;
-
-            hits++;
-
-            createEffect(
+            effectSphere(
                 enemy.position.clone()
-                    .add(
-                        new THREE.Vector3(
-                            0,
-                            2,
-                            0
-                        )
-                    ),
-                0xff1744,
+                    .add(new THREE.Vector3(0,4,0)),
+                0xff2244,
                 .5,
                 250
             );
 
-
-            if(enemy.hp<=0){
+            if(
+                enemy.userData.hp <= 0
+            ) {
 
                 killEnemy(enemy);
-
             }
-
         }
-
     });
-
-
-    if(hits>0){
-
-        playerData.combo+=hits;
-
-        showCombo();
-
-    }
-
-
-    return hits;
-
 }
 
 
-function killEnemy(enemy){
+/* =========================================================
+   MORTE INIMIGO
+========================================================= */
 
-    enemy.alive=false;
+function killEnemy(enemy) {
 
-    enemy.visible=false;
+    if(enemy.userData.dead)
+        return;
 
-    playerData.xp+=25;
+    enemy.userData.dead = true;
 
-    playerData.beli+=100;
+    playerData.xp += 30;
 
-    if(playerData.questActive){
+    playerData.beli += 100;
+
+    if(playerData.questActive) {
 
         playerData.questKills++;
 
+        updateQuest();
     }
 
-    checkLevel();
-
-    setTimeout(
-        ()=>{
-
-            enemy.hp=
-                enemy.maxHp;
-
-            enemy.position.set(
-                enemy.spawn.x,
-                GROUND_Y,
-                enemy.spawn.z
-            );
-
-            enemy.visible=true;
-
-            enemy.alive=true;
-
-        },
-        3000
+    showMessage(
+        "+30 XP  +100 Beli"
     );
-
-    updateQuest();
 
     updateUI();
 
+
+    setTimeout(() => {
+
+        enemy.userData.hp =
+            enemy.userData.maxHp;
+
+        enemy.position.set(
+            enemy.userData.spawnX,
+            0,
+            enemy.userData.spawnZ
+        );
+
+        enemy.userData.dead = false;
+
+    },2500);
 }
 
 
-/* ============================================================
+/* =========================================================
    LEVEL
-============================================================ */
+========================================================= */
 
-function checkLevel(){
+function checkLevel() {
 
     while(
-        playerData.xp>=
+        playerData.xp >=
         playerData.maxXp
-    ){
+    ) {
 
-        playerData.xp-=
+        playerData.xp -=
             playerData.maxXp;
 
         playerData.level++;
 
-        playerData.maxXp=
+        playerData.maxXp =
             Math.floor(
-                playerData.maxXp*1.25
+                playerData.maxXp * 1.35
             );
 
-        playerData.maxHp+=25;
+        playerData.maxHp += 35;
 
-        playerData.hp=
+        playerData.hp =
             playerData.maxHp;
 
-        playerData.maxEnergy+=10;
-
-        playerData.energy=
-            playerData.maxEnergy;
-
         showMessage(
-            "LEVEL UP! NÍVEL "+
+            "LEVEL UP! NÍVEL " +
             playerData.level
         );
-
-        playSound(
-            800,
-            .5,
-            "triangle"
-        );
-
     }
-
 }
 
 
-/* ============================================================
-   COMBO
-============================================================ */
+/* =========================================================
+   SKILLS
+========================================================= */
 
-function showCombo(){
+function castSkill(key) {
 
-    const el=
-        document.getElementById(
-            "combo"
-        );
-
-    document.getElementById(
-        "combo-number"
-    ).textContent=
-        playerData.combo;
-
-    el.style.opacity="1";
-
-    clearTimeout(comboTimer);
-
-    comboTimer=
-        setTimeout(
-            ()=>{
-                playerData.combo=0;
-                el.style.opacity="0";
-            },
-            1800
-        );
-
-}
-
-
-/* ============================================================
-   COOLDOWNS
-============================================================ */
-
-function canUseSkill(slot){
-
-    const now=
-        performance.now();
-
-    if(
-        cooldowns[slot] &&
-        cooldowns[slot]>now
-    ){
-
-        return false;
-
-    }
-
-    return true;
-
-}
-
-
-function startCooldown(
-    slot,
-    seconds
-){
-
-    const end=
-        performance.now()+
-        seconds*1000;
-
-    cooldowns[slot]=end;
-
-
-    const label=
-        document.getElementById(
-            "cd-"+slot
-        );
-
-
-    function update(){
-
-        const remaining=
-            end-performance.now();
-
-
-        if(remaining<=0){
-
-            label.textContent="";
-
-            return;
-
-        }
-
-
-        label.textContent=
-            (
-                remaining/1000
-            ).toFixed(1)+"s";
-
-
-        requestAnimationFrame(
-            update
-        );
-
-    }
-
-    update();
-
-}
-
-
-/* ============================================================
-   CAST SKILL
-============================================================ */
-
-function castSkill(slot){
-
-    if(
-        playerData.attackLock &&
-        slot!=="f"
-    ){
-
+    if(!FRUITS[playerData.currentFruit])
         return;
 
-    }
+    if(cooldowns[key])
+        return;
 
+    const fruit =
+        FRUITS[playerData.currentFruit];
 
-    const fruit=
-        FRUITS[
-            playerData.currentFruit
-        ];
-
-
-    const skill=
-        fruit.skills[slot];
-
+    const skill =
+        fruit.skills[key];
 
     if(!skill)
         return;
 
-
-    if(!canUseSkill(slot)){
-
-        notify(
-            "Skill em cooldown!"
-        );
-
-        return;
-
-    }
-
-
-    if(
-        playerData.energy<
-        10
-    ){
-
-        notify(
-            "Energia insuficiente!"
-        );
-
-        return;
-
-    }
-
-
-    playerData.energy-=10;
+    cooldowns[key] = true;
 
     startCooldown(
-        slot,
+        key,
         skill.cd
     );
 
 
-    playerData.attackLock=true;
+    playerData.attack = true;
 
 
-    executeSkill(
-        slot,
-        skill
-    );
-
-
-    updateUI();
-
-
-    setTimeout(
-        ()=>{
-            playerData.attackLock=false;
-        },
-        250
-    );
-
-}
-
-
-/* ============================================================
-   EXECUÇÃO GENÉRICA DAS SKILLS
-============================================================ */
-
-function executeSkill(
-    slot,
-    skill
-){
-
-    const fruit=
-        playerData.currentFruit;
-
-    const data=
-        FRUITS[fruit];
-
-    const color=
-        new THREE.Color(
-            data.color
-        );
-
-
-    const forward=
+    const forward =
         new THREE.Vector3(
+            Math.sin(player.rotation.y),
             0,
-            0,
-            -1
-        )
-        .applyQuaternion(
-            player.quaternion
+            Math.cos(player.rotation.y)
         );
 
-
-    const origin=
-        player.position.clone();
-
-
-    /* --------------------------------------------------------
-       Z
-    -------------------------------------------------------- */
-
-    if(slot==="z"){
-
-        playSound(
-            500,
-            .18,
-            "square"
-        );
-
-
-        const pos=
-            origin.clone().add(
-                forward.multiplyScalar(4)
+    const center =
+        player.position.clone()
+            .add(
+                forward.clone()
+                    .multiplyScalar(4)
             );
 
+    const damage =
+        skill.damage +
+        playerData.level * 4;
 
-        createEffect(
-            pos,
-            color,
-            1.5,
-            350
-        );
 
+    /* FÊNIX */
 
-        createRing(
-            pos,
-            color,
-            2,
-            400
-        );
+    if(playerData.currentFruit === "phoenix") {
 
+        if(key === "z")
+            effectRing(center,0x00ffff,2,350);
 
-        damageEnemies(
-            pos,
-            4,
-            skill.damage
-        );
+        if(key === "x") {
 
-
-        showMessage(
-            skill.name
-        );
-
-    }
-
-
-    /* --------------------------------------------------------
-       X
-    -------------------------------------------------------- */
-
-    else if(slot==="x"){
-
-        playSound(
-            700,
-            .25,
-            "sawtooth"
-        );
-
-
-        const pos=
-            origin.clone().add(
-                forward.multiplyScalar(6)
-            );
-
-
-        createEffect(
-            pos,
-            color,
-            3,
-            500
-        );
-
-
-        createRing(
-            pos,
-            color,
-            4,
-            600
-        );
-
-
-        damageEnemies(
-            pos,
-            7,
-            skill.damage
-        );
-
-
-        showMessage(
-            skill.name
-        );
-
-    }
-
-
-    /* --------------------------------------------------------
-       C
-    -------------------------------------------------------- */
-
-    else if(slot==="c"){
-
-        playSound(
-            850,
-            .3,
-            "triangle"
-        );
-
-
-        player.position.add(
-            forward.clone().multiplyScalar(5)
-        );
-
-
-        createEffect(
-            player.position,
-            color,
-            2.5,
-            500
-        );
-
-
-        createRing(
-            player.position,
-            color,
-            5,
-            650
-        );
-
-
-        damageEnemies(
-            player.position,
-            8,
-            skill.damage
-        );
-
-
-        showMessage(
-            skill.name
-        );
-
-    }
-
-
-    /* --------------------------------------------------------
-       V
-    -------------------------------------------------------- */
-
-    else if(slot==="v"){
-
-        playSound(
-            350,
-            .5,
-            "sawtooth"
-        );
-
-
-        const blast=
-            createEffect(
-                origin,
-                color,
-                5,
-                800
-            );
-
-
-        createRing(
-            origin,
-            color,
-            8,
-            900
-        );
-
-
-        damageEnemies(
-            origin,
-            11,
-            skill.damage
-        );
-
-
-        showMessage(
-            skill.name
-        );
-
-    }
-
-
-    /* --------------------------------------------------------
-       F - ULTIMATE
-    -------------------------------------------------------- */
-
-    else if(slot==="f"){
-
-        playSound(
-            180,
-            .8,
-            "sawtooth"
-        );
-
-
-        const ultimate=
-            createEffect(
-                origin,
-                color,
-                8,
-                1200
-            );
-
-
-        createRing(
-            origin,
-            color,
-            13,
-            1300
-        );
-
-
-        createRing(
-            origin,
-            0xffffff,
-            7,
-            900
-        );
-
-
-        damageEnemies(
-            origin,
-            16,
-            skill.damage
-        );
-
-
-        showMessage(
-            "⚡ "+skill.name+" ⚡"
-        );
-
-    }
-
-}
-
-
-/* ============================================================
-   FRUIT MENU
-============================================================ */
-
-function openFruitMenu(){
-
-    document
-        .getElementById(
-            "fruit-menu"
-        )
-        .classList.add("open");
-
-    buildFruitMenu();
-
-}
-
-
-function closeFruitMenu(){
-
-    document
-        .getElementById(
-            "fruit-menu"
-        )
-        .classList.remove("open");
-
-}
-
-
-function buildFruitMenu(){
-
-    const grid=
-        document.getElementById(
-            "fruit-grid"
-        );
-
-    grid.innerHTML="";
-
-
-    Object.entries(FRUITS)
-    .forEach(
-        ([id,fruit])=>{
-
-            const card=
-                document.createElement(
-                    "div"
+            playerData.hp =
+                Math.min(
+                    playerData.maxHp,
+                    playerData.hp + 35
                 );
 
-            card.className=
-                "fruit-card";
-
-
-            const skills=
-                Object.values(
-                    fruit.skills
-                )
-                .map(
-                    skill=>
-                        "• "+
-                        skill.name
-                )
-                .join("<br>");
-
-
-            card.innerHTML=`
-
-                <h3 style="color:${fruit.color}">
-                    ${fruit.name}
-                </h3>
-
-                <div class="rarity">
-                    ${fruit.type}
-                </div>
-
-                <div class="price">
-                    $${fruit.price}
-                </div>
-
-                <div style="
-                    font-size:10px;
-                    line-height:1.6;
-                    color:#aaa;
-                    margin-bottom:12px;
-                ">
-                    ${skills}
-                </div>
-
-                <button
-                    onclick="buyFruit('${id}')"
-                >
-                    COMPRAR / EQUIPAR
-                </button>
-
-            `;
-
-            grid.appendChild(card);
-
+            effectSphere(
+                player.position.clone()
+                    .add(new THREE.Vector3(0,3,0)),
+                0x00ffff,
+                3,
+                600
+            );
         }
+
+        if(key === "c") {
+
+            player.position.add(
+                forward.clone()
+                    .multiplyScalar(10)
+            );
+
+            effectRing(
+                player.position,
+                0xffd700,
+                3,
+                500
+            );
+        }
+
+        if(key === "v")
+            effectSphere(
+                player.position,
+                0x00ffff,
+                7,
+                650
+            );
+
+        if(key === "f") {
+
+            effectSphere(
+                player.position,
+                0xffd700,
+                11,
+                1000
+            );
+
+            playerData.hp =
+                playerData.maxHp;
+        }
+    }
+
+
+    /* DRAGÃO */
+
+    if(playerData.currentFruit === "dragon") {
+
+        if(key === "z")
+            effectRing(center,0xaa00ff,2.5,400);
+
+        if(key === "x")
+            effectSphere(center,0xff3300,4,500);
+
+        if(key === "c")
+            effectRing(player.position,0xffd700,7,600);
+
+        if(key === "v")
+            effectSphere(player.position,0xaa00ff,9,800);
+
+        if(key === "f")
+            effectSphere(player.position,0xff5500,14,1100);
+    }
+
+
+    /* DISTORÇÃO */
+
+    if(playerData.currentFruit === "distortion") {
+
+        if(key === "z")
+            effectRing(center,0xaa00ff,3,400);
+
+        if(key === "x")
+            effectSphere(center,0x12001f,4,600);
+
+        if(key === "c") {
+
+            const target =
+                getNearestEnemy();
+
+            if(target) {
+
+                const old =
+                    player.position.clone();
+
+                player.position.copy(
+                    target.position
+                );
+
+                target.position.copy(
+                    old
+                );
+            }
+        }
+
+        if(key === "v")
+            effectSphere(
+                player.position,
+                0x6600ff,
+                10,
+                900
+            );
+
+        if(key === "f")
+            effectSphere(
+                player.position,
+                0x110022,
+                15,
+                1200
+            );
+    }
+
+
+    /* GELO */
+
+    if(playerData.currentFruit === "ice") {
+
+        if(key === "z")
+            effectRing(center,0x00ffff,2,350);
+
+        if(key === "x")
+            effectSphere(center,0x88ffff,4,500);
+
+        if(key === "c")
+            effectRing(center,0xffffff,5,650);
+
+        if(key === "v")
+            effectSphere(
+                player.position,
+                0x55ffff,
+                10,
+                900
+            );
+
+        if(key === "f")
+            effectSphere(
+                player.position,
+                0xffffff,
+                15,
+                1200
+            );
+    }
+
+
+    /* CHAMA */
+
+    if(playerData.currentFruit === "flame") {
+
+        if(key === "z")
+            effectSphere(center,0xff4400,2,350);
+
+        if(key === "x")
+            effectRing(center,0xff6600,4,500);
+
+        if(key === "c")
+            effectSphere(center,0xff2200,5,600);
+
+        if(key === "v")
+            effectSphere(
+                player.position,
+                0xff3300,
+                10,
+                900
+            );
+
+        if(key === "f")
+            effectSphere(
+                player.position,
+                0xff0000,
+                16,
+                1300
+            );
+    }
+
+
+    /* DOUGH */
+
+    if(playerData.currentFruit === "dough") {
+
+        if(key === "z")
+            effectRing(center,0xffcc88,2.5,350);
+
+        if(key === "x")
+            effectSphere(center,0xffaa66,4,500);
+
+        if(key === "c")
+            effectRing(center,0xffddaa,5,600);
+
+        if(key === "v")
+            effectSphere(
+                player.position,
+                0xffbb77,
+                10,
+                900
+            );
+
+        if(key === "f")
+            effectSphere(
+                player.position,
+                0xffe0bb,
+                16,
+                1300
+            );
+    }
+
+
+    damageEnemies(
+        center,
+        key === "f" ? 16 :
+        key === "v" ? 11 :
+        key === "c" ? 7 : 5,
+        damage
     );
-
-}
-
-
-function buyFruit(id){
-
-    const fruit=
-        FRUITS[id];
-
-
-    if(
-        playerData.beli<
-        fruit.price
-    ){
-
-        notify(
-            "Beli insuficiente!"
-        );
-
-        return;
-
-    }
-
-
-    playerData.beli-=
-        fruit.price;
-
-
-    playerData.currentFruit=
-        id;
-
-
-    for(
-        const key in cooldowns
-    ){
-
-        delete cooldowns[key];
-
-    }
 
 
     updateUI();
 
-    closeFruitMenu();
 
+    setTimeout(() => {
 
-    showMessage(
-        "FRUTA EQUIPADA: "+
-        fruit.name
-    );
+        playerData.attack = false;
 
-
-    playSound(
-        1000,
-        .35,
-        "triangle"
-    );
-
+    },350);
 }
 
 
-/* ============================================================
-   NPC / INTERAÇÃO
-============================================================ */
+/* =========================================================
+   COOLDOWN
+========================================================= */
 
-function distanceToNpc(npc){
+function startCooldown(
+    key,
+    seconds
+) {
 
-    return player.position.distanceTo(
-        npc.position
-    );
+    const slot =
+        document.getElementById(
+            "skill-" + key
+        );
 
+    const cd =
+        slot.querySelector(".cd");
+
+    cd.style.display =
+        "flex";
+
+    let remaining =
+        seconds;
+
+    cd.textContent =
+        remaining.toFixed(1);
+
+    const interval =
+        setInterval(() => {
+
+            remaining -= .1;
+
+            if(remaining <= 0) {
+
+                clearInterval(interval);
+
+                cooldowns[key] =
+                    false;
+
+                cd.style.display =
+                    "none";
+
+                return;
+            }
+
+            cd.textContent =
+                remaining.toFixed(1);
+
+        },100);
 }
 
 
-function interactNPCs(){
+/* =========================================================
+   NPC
+========================================================= */
 
-    const questDistance=
-        distanceToNpc(
-            npcQuest
+function interactNPCs() {
+
+    const distanceFruit =
+        player.position.distanceTo(
+            fruitNPC.position
+        );
+
+    const distanceQuest =
+        player.position.distanceTo(
+            questNPC.position
         );
 
 
-    const fruitDistance=
-        distanceToNpc(
-            npcFruit
-        );
-
-
-    if(
-        fruitDistance<7
-    ){
+    if(distanceFruit < 7) {
 
         openFruitMenu();
 
         return;
-
     }
 
 
-    if(
-        questDistance<7
-    ){
+    if(distanceQuest < 7) {
 
-        interactQuest();
+        if(!playerData.questActive) {
 
-        return;
+            playerData.questActive =
+                true;
 
-    }
+            playerData.questKills =
+                0;
 
+            updateQuest();
 
-    notify(
-        "Nenhum NPC próximo."
-    );
-
-}
-
-
-function interactQuest(){
-
-    if(
-        !playerData.questActive
-    ){
-
-        playerData.questActive=true;
-
-        playerData.questKills=0;
-
-        showMessage(
-            "MISSÃO ACEITA!"
-        );
-
-        updateQuest();
-
-        return;
-
-    }
-
-
-    if(
-        playerData.questKills>=
-        playerData.questGoal
-    ){
-
-        playerData.questActive=false;
-
-        playerData.questKills=0;
-
-        playerData.beli+=1000;
-
-        playerData.xp+=100;
-
-        checkLevel();
-
-        updateUI();
-
-        updateQuest();
-
-        showMessage(
-            "MISSÃO COMPLETA! +$1000"
-        );
-
-        return;
-
-    }
-
-
-    notify(
-        "Derrote "+
-        (
-            playerData.questGoal-
-            playerData.questKills
-        )+
-        " inimigos."
-    );
-
-}
-
-
-function updateQuest(){
-
-    const text=
-        document.getElementById(
-            "quest-text"
-        );
-
-    const progress=
-        document.getElementById(
-            "quest-progress"
-        );
-
-
-    if(
-        !playerData.questActive
-    ){
-
-        text.textContent=
-            "Fale com o NPC Azul usando E.";
-
-        progress.textContent=
-            "Nenhuma missão ativa";
-
-        return;
-
-    }
-
-
-    text.textContent=
-        "Derrote inimigos para completar a missão.";
-
-
-    progress.textContent=
-        playerData.questKills+
-        " / "+
-        playerData.questGoal+
-        " inimigos";
-
-}
-
-
-/* ============================================================
-   INPUT
-============================================================ */
-
-window.addEventListener(
-    "keydown",
-    event=>{
-
-        keys[event.code]=true;
-
-
-        if(
-            event.code==="KeyZ"
-        ){
-
-            castSkill("z");
-
-        }
-
-
-        if(
-            event.code==="KeyX"
-        ){
-
-            castSkill("x");
-
-        }
-
-
-        if(
-            event.code==="KeyC"
-        ){
-
-            castSkill("c");
-
-        }
-
-
-        if(
-            event.code==="KeyV"
-        ){
-
-            castSkill("v");
-
-        }
-
-
-        if(
-            event.code==="KeyF"
-        ){
-
-            castSkill("f");
-
-        }
-
-
-        if(
-            event.code==="KeyE"
-        ){
-
-            interactNPCs();
-
-        }
-
-
-        if(
-            event.code==="Space" &&
-            playerData.grounded
-        ){
-
-            playerData.vy=
-                .48;
-
-            playerData.grounded=
-                false;
-
-        }
-
-    }
-);
-
-
-window.addEventListener(
-    "keyup",
-    event=>{
-        keys[event.code]=false;
-    }
-);
-
-
-/* ============================================================
-   MOVIMENTO
-============================================================ */
-
-function updatePlayer(){
-
-    const direction=
-        new THREE.Vector3();
-
-
-    if(keys["KeyW"])
-        direction.z-=1;
-
-    if(keys["KeyS"])
-        direction.z+=1;
-
-    if(keys["KeyA"])
-        direction.x-=1;
-
-    if(keys["KeyD"])
-        direction.x+=1;
-
-
-    if(direction.lengthSq()>0){
-
-        direction.normalize();
-
-        player.position.x+=
-            direction.x*
-            playerData.speed;
-
-        player.position.z+=
-            direction.z*
-            playerData.speed;
-
-
-        player.rotation.y=
-            Math.atan2(
-                direction.x,
-                direction.z
+            showMessage(
+                "Missão iniciada! Derrote 5 inimigos."
             );
 
-    }
+        } else {
 
+            if(
+                playerData.questKills >= 5
+            ) {
 
-    playerData.vy-=.025;
+                playerData.questActive =
+                    false;
 
-    player.position.y+=
-        playerData.vy;
+                playerData.questKills =
+                    0;
 
+                playerData.beli += 2000;
 
-    if(
-        player.position.y<=GROUND_Y
-    ){
+                playerData.xp += 100;
 
-        player.position.y=
-            GROUND_Y;
+                showMessage(
+                    "MISSÃO COMPLETA! +$2000 +100 XP"
+                );
 
-        playerData.vy=0;
+                updateQuest();
 
-        playerData.grounded=true;
+                updateUI();
 
-    }
+            } else {
 
-
-    /*
-       Limita o jogador à ilha.
-    */
-
-    const dist=
-        Math.sqrt(
-            player.position.x*
-            player.position.x+
-            player.position.z*
-            player.position.z
-        );
-
-
-    if(dist>55){
-
-        const factor=
-            55/dist;
-
-        player.position.x*=
-            factor;
-
-        player.position.z*=
-            factor;
-
-    }
-
-}
-
-
-/* ============================================================
-   CÂMERA
-============================================================ */
-
-function updateCamera(){
-
-    const desired=
-        new THREE.Vector3(
-            player.position.x,
-            player.position.y+10,
-            player.position.z+18
-        );
-
-
-    camera.position.lerp(
-        desired,
-        .08
-    );
-
-
-    camera.lookAt(
-        player.position.x,
-        player.position.y+2,
-        player.position.z
-    );
-
-}
-
-
-/* ============================================================
-   REGENERAÇÃO
-============================================================ */
-
-let lastRegen=
-    performance.now();
-
-
-function regenerate(){
-
-    const now=
-        performance.now();
-
-
-    if(
-        now-lastRegen>500
-    ){
-
-        playerData.energy=
-            Math.min(
-                playerData.maxEnergy,
-                playerData.energy+2
-            );
-
-
-        playerData.hp=
-            Math.min(
-                playerData.maxHp,
-                playerData.hp+.5
-            );
-
-
-        lastRegen=now;
-
-        updateUI();
-
-    }
-
-}
-
-
-/* ============================================================
-   INDICADOR DE INTERAÇÃO
-============================================================ */
-
-function updateInteraction(){
-
-    const questDistance=
-        distanceToNpc(
-            npcQuest
-        );
-
-
-    const fruitDistance=
-        distanceToNpc(
-            npcFruit
-        );
-
-
-    const interaction=
-        document.getElementById(
-            "interaction"
-        );
-
-
-    if(
-        questDistance<7
-    ){
-
-        interaction.textContent=
-            "NPC DE MISSÃO — pressione E";
-
-        interaction.style.opacity="1";
-
-        return;
-
-
-    if(
-        fruitDistance<7
-    ){
+                showMessage(
+                    "Você ainda precisa derrotar " +
+                    (5-playerData.questKills) +
+                    " inimigos."
