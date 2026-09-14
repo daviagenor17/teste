@@ -3,84 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blox Fruits 3D - Giro Normal e Giro da Sorte</title>
+  <title>Blox Fruits 3D - RPG Roblox</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      overflow: hidden;
-      background: #020208;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #fff;
-      user-select: none;
-    }
-    #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+    body { overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; background: #000; }
+    
+    #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; }
+    
+    /* INTERFACE DE USUÁRIO (ROBLOX STYLE) */
     #ui {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      z-index: 10; pointer-events: none;
-      display: flex; flex-direction: column; justify-content: space-between;
-      padding: 25px;
-    }
-    .header {
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .title {
-      font-size: 28px; font-weight: 900; letter-spacing: 2px;
-      text-transform: uppercase;
-      background: linear-gradient(45deg, #00f3ff, #ff0055);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
-    }
-    .inventory {
-      background: rgba(10, 10, 25, 0.75); backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 10px 20px; border-radius: 15px; font-size: 14px;
-      display: flex; gap: 15px;
-    }
-    .inv-item span { font-weight: bold; }
-    
-    #result-box {
-      align-self: center; text-align: center;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      opacity: 0; transform: scale(0.5);
-    }
-    #result-box.show { opacity: 1; transform: scale(1); }
-    .spin-type-badge {
-      font-size: 16px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
-      margin-bottom: 5px; color: #aaa;
-    }
-    .fruit-name {
-      font-size: 56px; font-weight: 900; text-transform: uppercase;
-      letter-spacing: 3px; filter: drop-shadow(0 0 25px currentColor);
-    }
-    .fruit-rarity {
-      font-size: 20px; font-weight: 800; letter-spacing: 4px;
-      color: #aaa; margin-top: -5px; text-transform: uppercase;
+      pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 20px;
     }
 
-    .controls {
-      align-self: center; margin-bottom: 20px;
-      display: flex; gap: 20px;
+    /* BARRA SUPERIOR DE STATUS */
+    .status-bar {
+      background: rgba(15, 15, 25, 0.85); backdrop-filter: blur(8px);
+      border: 2px solid #00f3ff; border-radius: 12px; padding: 15px 25px;
+      width: 320px; color: #fff;
     }
-    .btn {
-      pointer-events: auto;
-      color: #fff; border: none; padding: 18px 40px;
-      font-size: 20px; font-weight: 900; border-radius: 50px;
-      cursor: pointer; text-transform: uppercase; letter-spacing: 2px;
-      transition: all 0.2s ease;
-    }
-    .btn-normal {
-      background: linear-gradient(135deg, #00f3ff, #0055ff);
-      box-shadow: 0 0 25px rgba(0, 243, 255, 0.4);
-    }
-    .btn-normal:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(0, 243, 255, 0.8); }
-    
-    .btn-lucky {
-      background: linear-gradient(135deg, #ffd700, #ff00aa);
-      box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
-    }
-    .btn-lucky:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(255, 0, 170, 0.9); }
+    .status-title { font-size: 18px; font-weight: 900; color: #00f3ff; margin-bottom: 8px; text-transform: uppercase; }
+    .bar-container { background: #222; height: 16px; border-radius: 8px; overflow: hidden; margin-bottom: 8px; border: 1px solid #444; }
+    .hp-bar { background: linear-gradient(90deg, #ff0055, #ff5500); width: 100%; height: 100%; transition: width 0.2s; }
+    .xp-bar { background: linear-gradient(90deg, #00f3ff, #0055ff); width: 0%; height: 100%; transition: width 0.2s; }
+    .info-text { font-size: 13px; font-weight: bold; display: flex; justify-content: space-between; color: #ccc; }
 
-    .btn:disabled { background: #333; box-shadow: none; cursor: not-allowed; transform: none; opacity: 0.5; }
+    /* PAINEL DE MISSÃO */
+    .quest-panel {
+      position: absolute; top: 20px; right: 20px;
+      background: rgba(15, 15, 25, 0.85); border: 2px solid #ffaa00;
+      border-radius: 12px; padding: 15px; width: 250px; color: #fff;
+    }
+    .quest-title { color: #ffaa00; font-weight: 900; font-size: 16px; margin-bottom: 5px; }
+
+    /* HABILIDADES / FRUTA (PARTE INFERIOR) */
+    .skills-bar {
+      align-self: center; display: flex; gap: 15px; margin-bottom: 10px;
+    }
+    .skill-slot {
+      background: rgba(10, 10, 20, 0.9); border: 2px solid #00f3ff;
+      border-radius: 10px; padding: 12px; width: 90px; text-align: center; color: #fff;
+    }
+    .skill-key { font-size: 20px; font-weight: 900; color: #00f3ff; }
+    .skill-name { font-size: 11px; font-weight: bold; margin-top: 4px; text-transform: uppercase; color: #aaa; }
+
+    /* CONTROLES / GUIA */
+    .controls-guide {
+      position: absolute; bottom: 20px; left: 20px;
+      background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 8px;
+      color: #aaa; font-size: 12px;
+    }
+
+    /* MENSAGEM NO CENTRO DA TELA */
+    #center-msg {
+      position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+      font-size: 32px; font-weight: 900; color: #ffd700; text-shadow: 0 0 20px #ff0055;
+      opacity: 0; transition: opacity 0.3s; text-transform: uppercase; text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -88,319 +67,391 @@
   <div id="canvas-container"></div>
 
   <div id="ui">
-    <div class="header">
-      <div class="title">Blox Fruits 3D Gacha</div>
-      <div class="inventory">
-        <div class="inv-item" style="color:#b0b0b0">Comum: <span id="c-comum">0</span></div>
-        <div class="inv-item" style="color:#55ff55">Incomum: <span id="c-incomum">0</span></div>
-        <div class="inv-item" style="color:#0099ff">Rara: <span id="c-rara">0</span></div>
-        <div class="inv-item" style="color:#ffaa00">Lendária: <span id="c-lendaria">0</span></div>
-        <div class="inv-item" style="color:#ff0055">Mítica: <span id="c-mitica">0</span></div>
+    <div class="status-bar">
+      <div class="status-title">Nível <span id="lbl-level">1</span> (Fruta: Chama)</div>
+      <div class="bar-container"><div id="hp-bar" class="hp-bar"></div></div>
+      <div class="bar-container"><div id="xp-bar" class="xp-bar"></div></div>
+      <div class="info-text">
+        <span>HP: <span id="lbl-hp">100/100</span></span>
+        <span>Beli: $<span id="lbl-beli">0</span></span>
       </div>
     </div>
 
-    <div id="result-box">
-      <div class="spin-type-badge" id="spin-type-badge">GIRO NORMAL</div>
-      <div class="fruit-name" id="fruit-name">KITSUNE</div>
-      <div class="fruit-rarity" id="fruit-rarity">MÍTICA</div>
+    <div class="quest-panel">
+      <div class="quest-title">📜 Missão Atual</div>
+      <div id="quest-desc" style="font-size: 13px; color: #ddd;">Fale com o NPC de Missões na praça.</div>
+      <div style="font-size: 12px; color: #ffaa00; margin-top: 8px;" id="quest-prog">Progresso: 0/3 Bandidos</div>
     </div>
 
-    <div class="controls">
-      <button id="btn-normal" class="btn btn-normal" onclick="spin(false)">GIRO NORMAL</button>
-      <button id="btn-lucky" class="btn btn-lucky" onclick="spin(true)">GIRO DA SORTE 🍀</button>
+    <div id="center-msg">LEVEL UP!</div>
+
+    <div class="skills-bar">
+      <div class="skill-slot"><div class="skill-key">Z</div><div class="skill-name">Soco</div></div>
+      <div class="skill-slot"><div class="skill-key">X</div><div class="skill-name">Sopro de Fogo</div></div>
+      <div class="skill-slot"><div class="skill-key">C</div><div class="skill-name">Meteoro</div></div>
+    </div>
+
+    <div class="controls-guide">
+      <b>Movimento:</b> WASD | <b>Pulo:</b> Espaço | <b>Ataque:</b> Z, X, C | <b>Interagir:</b> E
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
-    // --- ÁUDIO SINTETIZADO ---
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    // --- GERENCIADOR DE ÁUDIO SINTETIZADO ---
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
     let audioCtx;
-    function initAudio() { if(!audioCtx) audioCtx = new AudioContext(); }
-
     function playSound(type) {
-      if(!audioCtx) return;
+      if(!audioCtx) audioCtx = new AudioCtx();
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain); gain.connect(audioCtx.destination);
       const now = audioCtx.currentTime;
 
-      if(type === 'tick') {
-        osc.type = 'sine'; osc.frequency.setValueAtTime(300 + Math.random()*200, now);
-        gain.gain.setValueAtTime(0.05, now); gain.gain.linearRampToValueAtTime(0.001, now + 0.05);
-        osc.start(now); osc.stop(now + 0.05);
-      } else if(type === 'reveal') {
-        osc.type = 'triangle'; osc.frequency.setValueAtTime(150, now);
-        osc.frequency.exponentialRampToValueAtTime(600, now + 0.4);
-        gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
-        osc.start(now); osc.stop(now + 0.5);
+      if(type==='hit') {
+        osc.type = 'square'; osc.frequency.setValueAtTime(150, now);
+        gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now+0.1);
+        osc.start(now); osc.stop(now+0.1);
+      } else if(type==='fire') {
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, now);
+        osc.frequency.exponentialRampToValueAtTime(80, now+0.3);
+        gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.01, now+0.3);
+        osc.start(now); osc.stop(now+0.3);
+      } else if(type==='levelup') {
+        osc.type = 'triangle'; osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now+0.5);
+        gain.gain.setValueAtTime(0.4, now); gain.gain.linearRampToValueAtTime(0.01, now+0.5);
+        osc.start(now); osc.stop(now+0.5);
       }
     }
 
-    // --- BASE DE DADOS DAS FRUTAS ---
-    const FRUITS = [
-      { id: 'rocket', name: 'Rocket', rarity: 'Comum', color: 0x888888, probNormal: 35 },
-      { id: 'flame', name: 'Flame', rarity: 'Incomum', color: 0xff4500, probNormal: 25 },
-      { id: 'ice', name: 'Ice', rarity: 'Incomum', color: 0x00ffff, probNormal: 20 },
-      { id: 'light', name: 'Light', rarity: 'Rara', color: 0xffd700, probNormal: 12 },
-      { id: 'buddha', name: 'Buddha', rarity: 'Lendária', color: 0xffaa00, probNormal: 5 },
-      { id: 'dragon', name: 'Dragon', rarity: 'Mítica', color: 0xd2143a, probNormal: 2 },
-      { id: 'kitsune', name: 'Kitsune', rarity: 'Mítica', color: 0x00f3ff, probNormal: 1 }
-    ];
-
-    const RARITY_COLORS = {
-      'Comum': '#b0b0b0', 'Incomum': '#55ff55', 'Rara': '#0099ff', 'Lendária': '#ffaa00', 'Mítica': '#ff0055'
-    };
-    const counts = { Comum: 0, Incomum: 0, Rara: 0, Lendária: 0, Mítica: 0 };
-
-    // --- CENA THREE.JS ---
-    const container = document.getElementById('canvas-container');
+    // --- CONFIGURAÇÃO THREE.JS ---
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x020208, 0.03);
+    scene.background = new THREE.Color(0x60c0ff);
+    scene.fog = new THREE.FogExp2(0x60c0ff, 0.015);
 
-    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 2, 7);
-
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    container.appendChild(renderer.domElement);
+    renderer.shadowMap.enabled = true;
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-    // --- ILUMINAÇÃO ---
+    // Luzes
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
+    dirLight.position.set(50, 80, 50);
+    dirLight.castShadow = true;
+    scene.add(dirLight);
 
-    const auraLight = new THREE.PointLight(0x00f3ff, 4, 15);
-    auraLight.position.set(0, 0, 0);
-    scene.add(auraLight);
-
-    // Pedestal
-    const pedGeo = new THREE.CylinderGeometry(1.6, 2, 0.5, 32);
-    const pedMat = new THREE.MeshStandardMaterial({ color: 0x111122, metalness: 0.9, roughness: 0.2 });
-    const pedestal = new THREE.Mesh(pedGeo, pedMat);
-    pedestal.position.y = -1.5;
-    scene.add(pedestal);
-
-    // Onda de Choque
-    const shockGeo = new THREE.RingGeometry(0.1, 0.5, 32);
-    const shockMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0 });
-    const shockwave = new THREE.Mesh(shockGeo, shockMat);
-    shockwave.rotation.x = Math.PI / 2;
-    shockwave.position.y = -1.2;
-    scene.add(shockwave);
-
-    // --- MODELADOR 3D PROCEDURAL ---
-    const fruitContainer = new THREE.Group();
-    scene.add(fruitContainer);
-
-    function buildFruitModel(id, color) {
-      while(fruitContainer.children.length > 0) {
-        fruitContainer.remove(fruitContainer.children[0]);
-      }
-
+    // --- CONSTRUTOR DE PERSONAGEM ROBLOX (AVATAR BLOCADO) ---
+    function createRobloxCharacter(colorBody, colorShirt) {
       const group = new THREE.Group();
+      const matSkin = new THREE.MeshStandardMaterial({ color: colorBody, roughness: 0.5 });
+      const matShirt = new THREE.MeshStandardMaterial({ color: colorShirt, roughness: 0.5 });
 
-      if(id === 'flame') {
-        const core = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 16), new THREE.MeshStandardMaterial({ color: 0xff4500, emissive: 0xaa2200 }));
-        group.add(core);
-        for(let i=0; i<12; i++) {
-          const flame = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.8, 8), new THREE.MeshBasicMaterial({ color: 0xffaa00 }));
-          flame.position.set((Math.random()-0.5)*1.6, (Math.random()-0.5)*1.6, (Math.random()-0.5)*1.6);
-          flame.rotation.x = Math.random()*Math.PI;
-          group.add(flame);
-        }
-      } 
-      else if(id === 'ice') {
-        const core = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), new THREE.MeshPhysicalMaterial({ color: 0x00ffff, transmission: 0.6, opacity: 1, transparent: true, roughness: 0.1 }));
-        group.add(core);
-        for(let i=0; i<8; i++) {
-          const spike = new THREE.Mesh(new THREE.ConeGeometry(0.2, 1, 4), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-          spike.position.set((Math.random()-0.5)*1.4, (Math.random()-0.5)*1.4, (Math.random()-0.5)*1.4);
-          spike.rotation.set(Math.random()*3, Math.random()*3, 0);
-          group.add(spike);
-        }
-      }
-      else if(id === 'light') {
-        const core = new THREE.Mesh(new THREE.OctahedronGeometry(1.1, 0), new THREE.MeshBasicMaterial({ color: 0xffff00 }));
-        group.add(core);
-        const ring = new THREE.Mesh(new THREE.TorusGeometry(1.6, 0.05, 16, 50), new THREE.MeshBasicMaterial({ color: 0xffd700 }));
-        group.add(ring);
-      }
-      else if(id === 'buddha') {
-        const core = new THREE.Mesh(new THREE.SphereGeometry(1.1, 32, 32), new THREE.MeshStandardMaterial({ color: 0xffaa00, metalness: 0.9, roughness: 0.1 }));
-        group.add(core);
-        const halo = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.08, 16, 50), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-        halo.rotation.x = Math.PI/3;
-        group.add(halo);
-      }
-      else if(id === 'dragon') {
-        const core = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 16), new THREE.MeshStandardMaterial({ color: 0xd2143a, roughness: 0.3 }));
-        group.add(core);
-        for(let i=0; i<6; i++) {
-          const horn = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.9, 8), new THREE.MeshStandardMaterial({ color: 0x111111 }));
-          horn.position.set((i%2===0?0.6:-0.6), 0.3 + (i*0.2), (Math.random()-0.5));
-          horn.rotation.z = (i%2===0?-0.5:0.5);
-          group.add(horn);
-        }
-      }
-      else if(id === 'kitsune') {
-        const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.9, 2), new THREE.MeshBasicMaterial({ color: 0x00f3ff }));
-        group.add(core);
-        for(let i=0; i<9; i++) {
-          const tail = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.25, 1.5, 8), new THREE.MeshBasicMaterial({ color: 0x00f3ff }));
-          const angle = (i / 9) * Math.PI * 2;
-          tail.position.set(Math.cos(angle)*0.8, Math.sin(angle)*0.8, -0.2);
-          tail.rotation.z = angle - Math.PI/2;
-          group.add(tail);
-        }
-      }
-      else {
-        const core = new THREE.Mesh(new THREE.DodecahedronGeometry(1), new THREE.MeshStandardMaterial({ color: color, roughness: 0.4 }));
-        group.add(core);
-      }
+      // Cabeça
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), matSkin);
+      head.position.y = 1.4;
+      group.add(head);
 
-      fruitContainer.add(group);
+      // Torso
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(1, 1.2, 0.5), matShirt);
+      torso.position.y = 0.4;
+      group.add(torso);
+
+      // Braços
+      const armL = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.2, 0.4), matShirt);
+      armL.position.set(-0.7, 0.4, 0);
+      group.add(armL);
+      const armR = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.2, 0.4), matShirt);
+      armR.position.set(0.7, 0.4, 0);
+      group.add(armR);
+
+      // Pernas
+      const legL = new THREE.Mesh(new THREE.BoxGeometry(0.45, 1.2, 0.45), matSkin);
+      legL.position.set(-0.25, -0.8, 0);
+      group.add(legL);
+      const legR = new THREE.Mesh(new THREE.BoxGeometry(0.45, 1.2, 0.45), matSkin);
+      legR.position.set(0.25, -0.8, 0);
+      group.add(legR);
+
+      group.armR = armR;
+      group.armL = armL;
+      return group;
     }
 
-    // Partículas
-    const pCount = 80;
-    const pGeo = new THREE.BufferGeometry();
-    const pPos = new Float32Array(pCount * 3);
-    for(let i=0; i<pCount*3; i+=3) {
-      pPos[i] = (Math.random()-0.5)*6;
-      pPos[i+1] = (Math.random()-0.5)*6;
-      pPos[i+2] = (Math.random()-0.5)*6;
+    // --- CONSTRUÇÃO DO MUNDO (ILHA INICIAL DO BLOX FRUITS) ---
+    // Oceano
+    const ocean = new THREE.Mesh(
+      new THREE.PlaneGeometry(600, 600),
+      new THREE.MeshStandardMaterial({ color: 0x004488, roughness: 0.1, metalness: 0.8 })
+    );
+    ocean.rotation.x = -Math.PI / 2;
+    ocean.position.y = -1;
+    scene.add(ocean);
+
+    // Ilha Principal (Grama)
+    const islandGeo = new THREE.CylinderGeometry(40, 45, 4, 32);
+    const islandMat = new THREE.MeshStandardMaterial({ color: 0x22aa33, roughness: 0.8 });
+    const island = new THREE.Mesh(islandGeo, islandMat);
+    island.position.y = 1;
+    scene.add(island);
+
+    // Árvores Decorativas
+    for(let i=0; i<12; i++) {
+      const angle = (i/12) * Math.PI * 2;
+      const dist = 18 + Math.random() * 15;
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.6, 3), new THREE.MeshStandardMaterial({ color: 0x553311 }));
+      const leaves = new THREE.Mesh(new THREE.SphereGeometry(1.8, 8, 8), new THREE.MeshStandardMaterial({ color: 0x118822 }));
+      trunk.position.set(Math.cos(angle)*dist, 4.5, Math.sin(angle)*dist);
+      leaves.position.set(Math.cos(angle)*dist, 6.5, Math.sin(angle)*dist);
+      scene.add(trunk); scene.add(leaves);
     }
-    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-    const pMat = new THREE.PointsMaterial({ size: 0.08, color: 0x00f3ff, transparent: true, opacity: 0.7 });
-    const particles = new THREE.Points(pGeo, pMat);
-    scene.add(particles);
 
-    // --- LÓGICA DE GIROS ---
-    let isSpinning = false;
-    let spinProgress = 0;
-    let selectedFruit = FRUITS[0];
-    let shakeIntensity = 0;
-    let currentSpinType = "NORMAL";
+    // NPC de Missões (Azul)
+    const npcQuest = createRobloxCharacter(0xffcc99, 0x0055ff);
+    npcQuest.position.set(0, 4, -8);
+    scene.add(npcQuest);
 
-    function getRandomFruit(isLucky) {
-      // Define probabilidades dependendo do tipo de giro
-      const pool = FRUITS.map(f => {
-        let prob = f.probNormal;
-        if (isLucky) {
-          if (f.rarity === 'Comum') prob = 0;         // Sem frutas comuns no Giro da Sorte
-          if (f.rarity === 'Incomum') prob = 10;
-          if (f.rarity === 'Rara') prob = 25;
-          if (f.rarity === 'Lendária') prob = 40;     // Chance altíssima de Lendária
-          if (f.rarity === 'Mítica') prob = 25;       // Chance alta de Mítica
+    // Marcador de Texto no NPC
+    const npcMarker = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.3, 0.1), new THREE.MeshBasicMaterial({ color: 0xffaa00 }));
+    npcMarker.position.set(0, 6.2, -8);
+    scene.add(npcMarker);
+
+    // --- JOGADOR ---
+    const player = createRobloxCharacter(0xffcc99, 0xff2200);
+    player.position.set(0, 4, 10);
+    scene.add(player);
+
+    const playerData = {
+      level: 1, xp: 0, maxXp: 100,
+      hp: 100, maxHp: 100, beli: 0,
+      questActive: false, questKills: 0,
+      speed: 0.25, isAttacking: false
+    };
+
+    // --- INIMIGOS (BANDIDOS) ---
+    const enemies = [];
+    function spawnEnemy(x, z) {
+      const enemy = createRobloxCharacter(0xffcc99, 0x333333);
+      enemy.position.set(x, 4, z);
+      enemy.hp = 50;
+      enemy.maxHp = 50;
+      enemy.spawnPos = { x, z };
+      scene.add(enemy);
+      enemies.push(enemy);
+    }
+    spawnEnemy(12, 5);
+    spawnEnemy(-12, 0);
+    spawnEnemy(15, -10);
+
+    // --- CONTROLES TECLADO ---
+    const keys = {};
+    window.addEventListener('keydown', e => {
+      keys[e.code] = true;
+      if(e.code === 'KeyZ') attackPunch();
+      if(e.code === 'KeyX') attackFireBreath();
+      if(e.code === 'KeyC') attackMeteor();
+      if(e.code === 'KeyE') interactNPC();
+    });
+    window.addEventListener('keyup', e => keys[e.code] = false);
+
+    // --- SISTEMA DE ATAQUES E HABILIDADES (FRUTA CHAMA) ---
+    function attackPunch() {
+      if(playerData.isAttacking) return;
+      playerData.isAttacking = true;
+      playSound('hit');
+
+      // Animação de Soco
+      player.armR.rotation.x = -Math.PI / 2;
+
+      // Dano em Área Curta
+      enemies.forEach(e => {
+        if(e.position.distanceTo(player.position) < 3.5) {
+          damageEnemy(e, 20 + playerData.level * 5);
         }
-        return { ...f, currentProb: prob };
       });
 
-      const total = pool.reduce((acc, f) => acc + f.currentProb, 0);
-      let rand = Math.random() * total;
-      for(let f of pool) {
-        if(rand < f.currentProb) return f;
-        rand -= f.currentProb;
+      setTimeout(() => {
+        player.armR.rotation.x = 0;
+        playerData.isAttacking = false;
+      }, 250);
+    }
+
+    function attackFireBreath() {
+      if(playerData.isAttacking) return;
+      playerData.isAttacking = true;
+      playSound('fire');
+
+      // Efeito Visual de Fogo
+      const fireGeo = new THREE.ConeGeometry(2, 6, 8);
+      const fireMat = new THREE.MeshBasicMaterial({ color: 0xff5500, transparent: true, opacity: 0.8 });
+      const fireMesh = new THREE.Mesh(fireGeo, fireMat);
+      fireMesh.rotation.x = -Math.PI / 2;
+      fireMesh.position.set(player.position.x, player.position.y + 0.5, player.position.z - 3);
+      scene.add(fireMesh);
+
+      enemies.forEach(e => {
+        if(e.position.distanceTo(player.position) < 7) {
+          damageEnemy(e, 40 + playerData.level * 8);
+        }
+      });
+
+      setTimeout(() => {
+        scene.remove(fireMesh);
+        playerData.isAttacking = false;
+      }, 400);
+    }
+
+    function attackMeteor() {
+      if(playerData.isAttacking) return;
+      playerData.isAttacking = true;
+      playSound('fire');
+
+      // Meteoro caindo do céu
+      const meteorMat = new THREE.MeshStandardMaterial({ color: 0xff2200, emissive: 0xaa1100 });
+      const meteor = new THREE.Mesh(new THREE.SphereGeometry(2, 16, 16), meteorMat);
+      const targetPos = player.position.clone().add(new THREE.Vector3(0, 0, -8));
+      meteor.position.set(targetPos.x, targetPos.y + 15, targetPos.z);
+      scene.add(meteor);
+
+      let dropInterval = setInterval(() => {
+        meteor.position.y -= 0.8;
+        if(meteor.position.y <= 3) {
+          clearInterval(dropInterval);
+          scene.remove(meteor);
+          playSound('hit');
+
+          // Impacto do Meteoro
+          enemies.forEach(e => {
+            if(e.position.distanceTo(targetPos) < 8) {
+              damageEnemy(e, 75 + playerData.level * 12);
+            }
+          });
+          playerData.isAttacking = false;
+        }
+      }, 16);
+    }
+
+    function damageEnemy(e, damage) {
+      e.hp -= damage;
+      // Efeito do inimigo recuando
+      e.position.z += 0.5;
+
+      if(e.hp <= 0) {
+        // Inimigo Derrotado
+        e.position.set(e.spawnPos.x, 4, e.spawnPos.z);
+        e.hp = e.maxHp;
+
+        addXP(40);
+        playerData.beli += 50;
+
+        if(playerData.questActive) {
+          playerData.questKills++;
+          if(playerData.questKills >= 3) {
+            playerData.questActive = false;
+            addXP(100);
+            playerData.beli += 200;
+            showCenterMsg("MISSÃO CONCLUÍDA! +$200");
+          }
+          updateUI();
+        }
       }
-      return FRUITS[0];
     }
 
-    function spin(isLucky = false) {
-      initAudio();
-      if(isSpinning) return;
-
-      isSpinning = true;
-      spinProgress = 0;
-      currentSpinType = isLucky ? "DA SORTE 🍀" : "NORMAL";
-
-      document.getElementById('btn-normal').disabled = true;
-      document.getElementById('btn-lucky').disabled = true;
-      document.getElementById('result-box').classList.remove('show');
-
-      selectedFruit = getRandomFruit(isLucky);
+    function addXP(amount) {
+      playerData.xp += amount;
+      if(playerData.xp >= playerData.maxXp) {
+        playerData.level++;
+        playerData.xp = 0;
+        playerData.maxXp = Math.floor(playerData.maxXp * 1.5);
+        playerData.maxHp += 20;
+        playerData.hp = playerData.maxHp;
+        playSound('levelup');
+        showCenterMsg("LEVEL UP! NV " + playerData.level);
+      }
+      updateUI();
     }
 
-    function triggerRevealEffect() {
-      playSound('reveal');
-      shakeIntensity = 0.3;
-
-      counts[selectedFruit.rarity]++;
-      document.getElementById(`c-${selectedFruit.rarity.toLowerCase()}`).innerText = counts[selectedFruit.rarity];
-
-      const badgeEl = document.getElementById('spin-type-badge');
-      const nameEl = document.getElementById('fruit-name');
-      const rarityEl = document.getElementById('fruit-rarity');
-
-      badgeEl.innerText = `GIRO ${currentSpinType}`;
-      badgeEl.style.color = currentSpinType.includes('SORTE') ? '#ffd700' : '#00f3ff';
-
-      nameEl.innerText = selectedFruit.name;
-      nameEl.style.color = RARITY_COLORS[selectedFruit.rarity];
-      rarityEl.innerText = selectedFruit.rarity;
-
-      document.getElementById('result-box').classList.add('show');
-
-      shockwave.scale.set(1, 1, 1);
-      shockMat.opacity = 1;
-      shockMat.color.setHex(selectedFruit.color);
+    function interactNPC() {
+      if(player.position.distanceTo(npcQuest.position) < 4) {
+        playerData.questActive = true;
+        playerData.questKills = 0;
+        showCenterMsg("MISSÃO ACEITA: Derrote 3 Bandidos");
+        updateUI();
+      }
     }
 
-    buildFruitModel('flame', 0xff4500);
+    function showCenterMsg(text) {
+      const msg = document.getElementById('center-msg');
+      msg.innerText = text;
+      msg.style.opacity = 1;
+      setTimeout(() => msg.style.opacity = 0, 2500);
+    }
 
-    // --- LOOP PRINCIPAL ---
-    let clock = new THREE.Clock();
+    function updateUI() {
+      document.getElementById('lbl-level').innerText = playerData.level;
+      document.getElementById('lbl-hp').innerText = `${playerData.hp}/${playerData.maxHp}`;
+      document.getElementById('lbl-beli').innerText = playerData.beli;
+      
+      document.getElementById('hp-bar').style.width = `${(playerData.hp / playerData.maxHp) * 100}%`;
+      document.getElementById('xp-bar').style.width = `${(playerData.xp / playerData.maxXp) * 100}%`;
 
+      const questDesc = document.getElementById('quest-desc');
+      const questProg = document.getElementById('quest-prog');
+      if(playerData.questActive) {
+        questDesc.innerText = "Derrote os Bandidos na ilha.";
+        questProg.innerText = `Progresso: ${playerData.questKills}/3 Bandidos`;
+      } else {
+        questDesc.innerText = "Fale com o NPC de Missões na praça.";
+        questProg.innerText = "Nenhuma missão ativa";
+      }
+    }
+
+    // --- LOOP DE ATUALIZAÇÃO DO JOGO (60 FPS) ---
     function animate() {
       requestAnimationFrame(animate);
-      const delta = clock.getDelta();
-      const time = clock.getElapsedTime();
 
-      particles.rotation.y = time * 0.1;
+      // Movimentação do Jogador (WASD)
+      if(keys['KeyW']) player.position.z -= playerData.speed;
+      if(keys['KeyS']) player.position.z += playerData.speed;
+      if(keys['KeyA']) player.position.x -= playerData.speed;
+      if(keys['KeyD']) player.position.x += playerData.speed;
 
-      if(shockMat.opacity > 0) {
-        shockwave.scale.addScalar(0.25);
-        shockMat.opacity -= 0.03;
+      // Limite da Ilha (Não cair na água)
+      const distFromCenter = Math.hypot(player.position.x, player.position.z);
+      if(distFromCenter > 38) {
+        player.position.x *= 0.98;
+        player.position.z *= 0.98;
       }
 
-      if(shakeIntensity > 0) {
-        camera.position.x = (Math.random()-0.5) * shakeIntensity;
-        camera.position.y = 2 + (Math.random()-0.5) * shakeIntensity;
-        shakeIntensity -= delta * 0.8;
-      } else {
-        camera.position.x = 0; camera.position.y = 2;
-      }
+      // Câmera estilo Roblox (Acompanha o Jogador em 3ª pessoa)
+      camera.position.set(player.position.x, player.position.y + 8, player.position.z + 12);
+      camera.lookAt(player.position.x, player.position.y + 1, player.position.z);
 
-      if(isSpinning) {
-        spinProgress += delta;
-
-        if(Math.floor(spinProgress * 20) % 2 === 0) {
-          const tempFruit = FRUITS[Math.floor(Math.random()*FRUITS.length)];
-          buildFruitModel(tempFruit.id, tempFruit.color);
-          auraLight.color.setHex(tempFruit.color);
-          pMat.color.setHex(tempFruit.color);
-          playSound('tick');
+      // Inteligência Artificial dos Inimigos (IA de Perseguição)
+      enemies.forEach(enemy => {
+        const distToPlayer = enemy.position.distanceTo(player.position);
+        
+        // Se o jogador chegar perto, o bandido persegue e ataca
+        if(distToPlayer < 12 && distToPlayer > 1.8) {
+          const dir = player.position.clone().sub(enemy.position).normalize();
+          enemy.position.x += dir.x * 0.05;
+          enemy.position.z += dir.z * 0.05;
+        } else if(distToPlayer <= 1.8) {
+          // Inimigo Ataca o Jogador
+          playerData.hp = Math.max(0, playerData.hp - 0.2);
+          updateUI();
+          if(playerData.hp === 0) {
+            // Respawn do jogador
+            player.position.set(0, 4, 10);
+            playerData.hp = playerData.maxHp;
+            showCenterMsg("VOCÊ MORREU!");
+            updateUI();
+          }
         }
-
-        fruitContainer.rotation.y += 0.4;
-        fruitContainer.rotation.x += 0.2;
-
-        if(spinProgress >= 3) {
-          isSpinning = false;
-          document.getElementById('btn-normal').disabled = false;
-          document.getElementById('btn-lucky').disabled = false;
-
-          buildFruitModel(selectedFruit.id, selectedFruit.color);
-          auraLight.color.setHex(selectedFruit.color);
-          pMat.color.setHex(selectedFruit.color);
-
-          fruitContainer.rotation.set(0,0,0);
-          triggerRevealEffect();
-        }
-      } else {
-        fruitContainer.rotation.y += 0.01;
-        fruitContainer.position.y = Math.sin(time * 2) * 0.15;
-      }
+      });
 
       renderer.render(scene, camera);
     }
