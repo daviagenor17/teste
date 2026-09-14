@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blox Fruits 3D Ultra Gacha</title>
+  <title>Blox Fruits 3D - Giro Normal e Giro da Sorte</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -44,6 +44,10 @@
       opacity: 0; transform: scale(0.5);
     }
     #result-box.show { opacity: 1; transform: scale(1); }
+    .spin-type-badge {
+      font-size: 16px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+      margin-bottom: 5px; color: #aaa;
+    }
     .fruit-name {
       font-size: 56px; font-weight: 900; text-transform: uppercase;
       letter-spacing: 3px; filter: drop-shadow(0 0 25px currentColor);
@@ -53,18 +57,30 @@
       color: #aaa; margin-top: -5px; text-transform: uppercase;
     }
 
-    .controls { align-self: center; margin-bottom: 20px; }
-    #spin-btn {
+    .controls {
+      align-self: center; margin-bottom: 20px;
+      display: flex; gap: 20px;
+    }
+    .btn {
       pointer-events: auto;
-      background: linear-gradient(135deg, #00f3ff, #ff00aa);
-      color: #fff; border: none; padding: 20px 60px;
-      font-size: 24px; font-weight: 900; border-radius: 50px;
+      color: #fff; border: none; padding: 18px 40px;
+      font-size: 20px; font-weight: 900; border-radius: 50px;
       cursor: pointer; text-transform: uppercase; letter-spacing: 2px;
-      box-shadow: 0 0 30px rgba(0, 243, 255, 0.5);
       transition: all 0.2s ease;
     }
-    #spin-btn:hover { transform: scale(1.08); box-shadow: 0 0 50px rgba(255, 0, 170, 0.8); }
-    #spin-btn:disabled { background: #333; box-shadow: none; cursor: not-allowed; transform: none; opacity: 0.5; }
+    .btn-normal {
+      background: linear-gradient(135deg, #00f3ff, #0055ff);
+      box-shadow: 0 0 25px rgba(0, 243, 255, 0.4);
+    }
+    .btn-normal:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(0, 243, 255, 0.8); }
+    
+    .btn-lucky {
+      background: linear-gradient(135deg, #ffd700, #ff00aa);
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+    }
+    .btn-lucky:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(255, 0, 170, 0.9); }
+
+    .btn:disabled { background: #333; box-shadow: none; cursor: not-allowed; transform: none; opacity: 0.5; }
   </style>
 </head>
 <body>
@@ -73,7 +89,7 @@
 
   <div id="ui">
     <div class="header">
-      <div class="title">Blox Fruits 3D Ultra</div>
+      <div class="title">Blox Fruits 3D Gacha</div>
       <div class="inventory">
         <div class="inv-item" style="color:#b0b0b0">Comum: <span id="c-comum">0</span></div>
         <div class="inv-item" style="color:#55ff55">Incomum: <span id="c-incomum">0</span></div>
@@ -84,12 +100,14 @@
     </div>
 
     <div id="result-box">
+      <div class="spin-type-badge" id="spin-type-badge">GIRO NORMAL</div>
       <div class="fruit-name" id="fruit-name">KITSUNE</div>
       <div class="fruit-rarity" id="fruit-rarity">MÍTICA</div>
     </div>
 
     <div class="controls">
-      <button id="spin-btn" onclick="spin()">GIRAR FRUTA</button>
+      <button id="btn-normal" class="btn btn-normal" onclick="spin(false)">GIRO NORMAL</button>
+      <button id="btn-lucky" class="btn btn-lucky" onclick="spin(true)">GIRO DA SORTE 🍀</button>
     </div>
   </div>
 
@@ -121,13 +139,13 @@
 
     // --- BASE DE DADOS DAS FRUTAS ---
     const FRUITS = [
-      { id: 'rocket', name: 'Rocket', rarity: 'Comum', color: 0x888888, prob: 30 },
-      { id: 'flame', name: 'Flame', rarity: 'Incomum', color: 0xff4500, prob: 25 },
-      { id: 'ice', name: 'Ice', rarity: 'Incomum', color: 0x00ffff, prob: 20 },
-      { id: 'light', name: 'Light', rarity: 'Rara', color: 0xffd700, prob: 12 },
-      { id: 'buddha', name: 'Buddha', rarity: 'Lendária', color: 0xffaa00, prob: 8 },
-      { id: 'dragon', name: 'Dragon', rarity: 'Mítica', color: 0xd2143a, prob: 3.5 },
-      { id: 'kitsune', name: 'Kitsune', rarity: 'Mítica', color: 0x00f3ff, prob: 1.5 }
+      { id: 'rocket', name: 'Rocket', rarity: 'Comum', color: 0x888888, probNormal: 35 },
+      { id: 'flame', name: 'Flame', rarity: 'Incomum', color: 0xff4500, probNormal: 25 },
+      { id: 'ice', name: 'Ice', rarity: 'Incomum', color: 0x00ffff, probNormal: 20 },
+      { id: 'light', name: 'Light', rarity: 'Rara', color: 0xffd700, probNormal: 12 },
+      { id: 'buddha', name: 'Buddha', rarity: 'Lendária', color: 0xffaa00, probNormal: 5 },
+      { id: 'dragon', name: 'Dragon', rarity: 'Mítica', color: 0xd2143a, probNormal: 2 },
+      { id: 'kitsune', name: 'Kitsune', rarity: 'Mítica', color: 0x00f3ff, probNormal: 1 }
     ];
 
     const RARITY_COLORS = {
@@ -152,10 +170,6 @@
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
 
-    const mainLight = new THREE.PointLight(0xffffff, 2, 20);
-    mainLight.position.set(0, 4, 3);
-    scene.add(mainLight);
-
     const auraLight = new THREE.PointLight(0x00f3ff, 4, 15);
     auraLight.position.set(0, 0, 0);
     scene.add(auraLight);
@@ -167,7 +181,7 @@
     pedestal.position.y = -1.5;
     scene.add(pedestal);
 
-    // Anel de Onda de Choque (Efeito de Revelação)
+    // Onda de Choque
     const shockGeo = new THREE.RingGeometry(0.1, 0.5, 32);
     const shockMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0 });
     const shockwave = new THREE.Mesh(shockGeo, shockMat);
@@ -175,12 +189,11 @@
     shockwave.position.y = -1.2;
     scene.add(shockwave);
 
-    // --- MODELADOR PROCEDURAL DE FRUTAS 3D ---
+    // --- MODELADOR 3D PROCEDURAL ---
     const fruitContainer = new THREE.Group();
     scene.add(fruitContainer);
 
     function buildFruitModel(id, color) {
-      // Limpa modelo anterior
       while(fruitContainer.children.length > 0) {
         fruitContainer.remove(fruitContainer.children[0]);
       }
@@ -188,7 +201,6 @@
       const group = new THREE.Group();
 
       if(id === 'flame') {
-        // Fruta de Fogo (Esfera + Chamas em volta)
         const core = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 16), new THREE.MeshStandardMaterial({ color: 0xff4500, emissive: 0xaa2200 }));
         group.add(core);
         for(let i=0; i<12; i++) {
@@ -199,7 +211,6 @@
         }
       } 
       else if(id === 'ice') {
-        // Fruta de Gelo (Cubo Cristalino + Espinhos)
         const core = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), new THREE.MeshPhysicalMaterial({ color: 0x00ffff, transmission: 0.6, opacity: 1, transparent: true, roughness: 0.1 }));
         group.add(core);
         for(let i=0; i<8; i++) {
@@ -210,14 +221,12 @@
         }
       }
       else if(id === 'light') {
-        // Fruta da Luz (Octaedro Dourado + Anéis de Luz)
         const core = new THREE.Mesh(new THREE.OctahedronGeometry(1.1, 0), new THREE.MeshBasicMaterial({ color: 0xffff00 }));
         group.add(core);
         const ring = new THREE.Mesh(new THREE.TorusGeometry(1.6, 0.05, 16, 50), new THREE.MeshBasicMaterial({ color: 0xffd700 }));
         group.add(ring);
       }
       else if(id === 'buddha') {
-        // Buddha (Estátua/Esfera Dourada com Halo)
         const core = new THREE.Mesh(new THREE.SphereGeometry(1.1, 32, 32), new THREE.MeshStandardMaterial({ color: 0xffaa00, metalness: 0.9, roughness: 0.1 }));
         group.add(core);
         const halo = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.08, 16, 50), new THREE.MeshBasicMaterial({ color: 0xffffff }));
@@ -225,7 +234,6 @@
         group.add(halo);
       }
       else if(id === 'dragon') {
-        // Dragon (Esfera Vermelha + Chifres Negros)
         const core = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 16), new THREE.MeshStandardMaterial({ color: 0xd2143a, roughness: 0.3 }));
         group.add(core);
         for(let i=0; i<6; i++) {
@@ -236,7 +244,6 @@
         }
       }
       else if(id === 'kitsune') {
-        // Kitsune (Núcleo Mágico + Caudas em Arco)
         const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.9, 2), new THREE.MeshBasicMaterial({ color: 0x00f3ff }));
         group.add(core);
         for(let i=0; i<9; i++) {
@@ -248,7 +255,6 @@
         }
       }
       else {
-        // Rocket / Genérica (Dodecaedro Stylized)
         const core = new THREE.Mesh(new THREE.DodecahedronGeometry(1), new THREE.MeshStandardMaterial({ color: color, roughness: 0.4 }));
         group.add(core);
       }
@@ -256,7 +262,7 @@
       fruitContainer.add(group);
     }
 
-    // --- PARTÍCULAS DE AURA ---
+    // Partículas
     const pCount = 80;
     const pGeo = new THREE.BufferGeometry();
     const pPos = new Float32Array(pCount * 3);
@@ -270,60 +276,79 @@
     const particles = new THREE.Points(pGeo, pMat);
     scene.add(particles);
 
-    // --- LÓGICA DO GIRO E ANIMAÇÕES ---
+    // --- LÓGICA DE GIROS ---
     let isSpinning = false;
     let spinProgress = 0;
     let selectedFruit = FRUITS[0];
     let shakeIntensity = 0;
+    let currentSpinType = "NORMAL";
 
-    function getRandomFruit() {
-      const total = FRUITS.reduce((acc, f) => acc + f.prob, 0);
+    function getRandomFruit(isLucky) {
+      // Define probabilidades dependendo do tipo de giro
+      const pool = FRUITS.map(f => {
+        let prob = f.probNormal;
+        if (isLucky) {
+          if (f.rarity === 'Comum') prob = 0;         // Sem frutas comuns no Giro da Sorte
+          if (f.rarity === 'Incomum') prob = 10;
+          if (f.rarity === 'Rara') prob = 25;
+          if (f.rarity === 'Lendária') prob = 40;     // Chance altíssima de Lendária
+          if (f.rarity === 'Mítica') prob = 25;       // Chance alta de Mítica
+        }
+        return { ...f, currentProb: prob };
+      });
+
+      const total = pool.reduce((acc, f) => acc + f.currentProb, 0);
       let rand = Math.random() * total;
-      for(let f of FRUITS) {
-        if(rand < f.prob) return f;
-        rand -= f.prob;
+      for(let f of pool) {
+        if(rand < f.currentProb) return f;
+        rand -= f.currentProb;
       }
       return FRUITS[0];
     }
 
-    function spin() {
+    function spin(isLucky = false) {
       initAudio();
       if(isSpinning) return;
 
       isSpinning = true;
       spinProgress = 0;
-      document.getElementById('spin-btn').disabled = true;
+      currentSpinType = isLucky ? "DA SORTE 🍀" : "NORMAL";
+
+      document.getElementById('btn-normal').disabled = true;
+      document.getElementById('btn-lucky').disabled = true;
       document.getElementById('result-box').classList.remove('show');
 
-      selectedFruit = getRandomFruit();
+      selectedFruit = getRandomFruit(isLucky);
     }
 
     function triggerRevealEffect() {
       playSound('reveal');
-      shakeIntensity = 0.3; // Screen shake
+      shakeIntensity = 0.3;
 
-      // Atualiza UI
       counts[selectedFruit.rarity]++;
       document.getElementById(`c-${selectedFruit.rarity.toLowerCase()}`).innerText = counts[selectedFruit.rarity];
 
+      const badgeEl = document.getElementById('spin-type-badge');
       const nameEl = document.getElementById('fruit-name');
       const rarityEl = document.getElementById('fruit-rarity');
+
+      badgeEl.innerText = `GIRO ${currentSpinType}`;
+      badgeEl.style.color = currentSpinType.includes('SORTE') ? '#ffd700' : '#00f3ff';
+
       nameEl.innerText = selectedFruit.name;
       nameEl.style.color = RARITY_COLORS[selectedFruit.rarity];
       rarityEl.innerText = selectedFruit.rarity;
 
       document.getElementById('result-box').classList.add('show');
 
-      // Onda de choque
       shockwave.scale.set(1, 1, 1);
       shockMat.opacity = 1;
       shockMat.color.setHex(selectedFruit.color);
     }
 
-    // Model inicial
     buildFruitModel('flame', 0xff4500);
 
-    // --- LOOP PRINCIPAL (60 FPS) ---
+    // --- LOOP PRINCIPAL ---
     let clock = new THREE.Clock();
 
     function animate() {
@@ -333,13 +358,11 @@
 
       particles.rotation.y = time * 0.1;
 
-      // Animação da Onda de Choque
       if(shockMat.opacity > 0) {
         shockwave.scale.addScalar(0.25);
         shockMat.opacity -= 0.03;
       }
 
-      // Camera Shake
       if(shakeIntensity > 0) {
         camera.position.x = (Math.random()-0.5) * shakeIntensity;
         camera.position.y = 2 + (Math.random()-0.5) * shakeIntensity;
@@ -351,7 +374,6 @@
       if(isSpinning) {
         spinProgress += delta;
 
-        // Troca o modelo 3D rapidamente durante o giro
         if(Math.floor(spinProgress * 20) % 2 === 0) {
           const tempFruit = FRUITS[Math.floor(Math.random()*FRUITS.length)];
           buildFruitModel(tempFruit.id, tempFruit.color);
@@ -363,10 +385,10 @@
         fruitContainer.rotation.y += 0.4;
         fruitContainer.rotation.x += 0.2;
 
-        // Fim do Giro (3 Segundos)
         if(spinProgress >= 3) {
           isSpinning = false;
-          document.getElementById('spin-btn').disabled = false;
+          document.getElementById('btn-normal').disabled = false;
+          document.getElementById('btn-lucky').disabled = false;
 
           buildFruitModel(selectedFruit.id, selectedFruit.color);
           auraLight.color.setHex(selectedFruit.color);
@@ -376,7 +398,6 @@
           triggerRevealEffect();
         }
       } else {
-        // Animação Idle (Flutuando suavemente)
         fruitContainer.rotation.y += 0.01;
         fruitContainer.position.y = Math.sin(time * 2) * 0.15;
       }
