@@ -3,606 +3,344 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fruit World 3D</title>
+<title>Fruit Seas 3D</title>
 
 <style>
 * {
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
+    user-select: none;
 }
 
 html, body {
+    margin: 0;
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: #101827;
-    color: white;
+    background: #050b14;
     font-family: Arial, Helvetica, sans-serif;
 }
 
-#canvas-container {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    background: linear-gradient(#263b5c, #101827);
-}
-
-#canvas-container canvas {
+canvas {
     display: block;
-    width: 100% !important;
-    height: 100% !important;
 }
 
 #ui {
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: 10;
+    color: white;
+}
+
+#topLeft {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    width: 250px;
 }
 
 .panel {
-    background: rgba(8, 12, 24, 0.92);
-    border: 2px solid #263d68;
-    border-radius: 14px;
-    box-shadow: 0 8px 30px rgba(0,0,0,.45);
+    background: rgba(8, 14, 25, .82);
+    border: 1px solid rgba(255,255,255,.15);
+    box-shadow: 0 8px 30px rgba(0,0,0,.35);
     backdrop-filter: blur(8px);
+    border-radius: 12px;
+    padding: 12px;
 }
 
-#stats {
-    position: absolute;
-    left: 18px;
-    top: 18px;
-    width: 330px;
-    padding: 15px;
-}
-
-.title {
-    color: #00eaff;
-    font-size: 17px;
-    font-weight: 900;
-    margin-bottom: 10px;
+#playerName {
+    font-weight: bold;
+    margin-bottom: 8px;
 }
 
 .bar {
-    height: 15px;
-    background: #20283a;
-    border-radius: 10px;
+    width: 100%;
+    height: 18px;
+    background: #171c25;
+    border-radius: 20px;
     overflow: hidden;
-    border: 1px solid #39455d;
-    margin-top: 6px;
+    border: 1px solid rgba(255,255,255,.12);
 }
 
-#hp-fill {
+#healthFill {
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg,#ff1744,#ff6d00);
+    background: linear-gradient(90deg,#e52b35,#ff5964);
+    transition: width .15s;
 }
 
-#xp-fill {
+#xpFill {
     width: 0%;
     height: 100%;
-    background: linear-gradient(90deg,#00eaff,#2979ff);
+    background: linear-gradient(90deg,#25b8ff,#7d5cff);
+    transition: width .2s;
 }
 
-.info {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 8px;
-    color: #d0d6e2;
-    font-size: 13px;
-}
-
-#fruit-info {
-    margin-top: 10px;
-    color: #fff;
-    font-weight: bold;
-}
-
-#quest {
-    position: absolute;
-    right: 18px;
-    top: 18px;
-    width: 300px;
-    padding: 15px;
-    border-color: #ffb300;
-}
-
-#quest h3 {
-    color: #ffb300;
-    margin-bottom: 8px;
-}
-
-#quest-text {
-    font-size: 13px;
-    color: #ddd;
-    line-height: 1.5;
-}
-
-#npc-message {
-    position: absolute;
-    left: 50%;
-    top: 27%;
-    transform: translate(-50%,-50%);
-    padding: 15px 25px;
-    background: rgba(0,0,0,.8);
-    border: 2px solid #00eaff;
-    border-radius: 14px;
-    color: #fff;
-    font-weight: bold;
-    font-size: 18px;
-    text-align: center;
-    opacity: 0;
-    transition: opacity .25s;
-}
-
-#fruit-menu {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%,-50%);
-    width: min(850px,94vw);
-    max-height: 82vh;
-    overflow-y: auto;
-    padding: 20px;
-    background: rgba(5,8,18,.97);
-    border: 2px solid #b000ff;
-    border-radius: 18px;
-    display: none;
-    pointer-events: auto;
-    box-shadow: 0 0 50px rgba(150,0,255,.35);
-}
-
-#fruit-menu h2 {
-    color: #d500ff;
-    text-align: center;
-    margin-bottom: 5px;
-}
-
-#fruit-menu p {
-    text-align: center;
-    color: #aaa;
-    margin-bottom: 15px;
-}
-
-.fruit-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-    gap: 12px;
-}
-
-.fruit-card {
-    background: linear-gradient(145deg,#131a2b,#080c16);
-    border: 2px solid #33405c;
-    border-radius: 13px;
-    padding: 14px;
-    cursor: pointer;
-    transition: .2s;
-}
-
-.fruit-card:hover {
-    transform: translateY(-3px);
-    border-color: #00eaff;
-}
-
-.fruit-card h3 {
-    margin-bottom: 7px;
-}
-
-.fruit-card .type {
-    color: #aaa;
-    font-size: 11px;
-    margin-bottom: 8px;
-}
-
-.fruit-card .skill-list {
+.smallText {
     font-size: 12px;
-    line-height: 1.65;
-    color: #ddd;
+    opacity: .8;
+    margin-top: 5px;
 }
 
-#close-menu {
-    display: block;
-    margin: 18px auto 0;
-    border: 0;
-    background: #b000ff;
-    color: white;
-    padding: 10px 25px;
-    border-radius: 9px;
-    cursor: pointer;
+#stats {
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+#questBox {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    width: 280px;
+    display: none;
+}
+
+#questTitle {
     font-weight: bold;
+    color: #ffd75e;
+}
+
+#questProgress {
+    margin-top: 7px;
+    font-size: 13px;
 }
 
 #hotbar {
     position: absolute;
-    bottom: 20px;
     left: 50%;
+    bottom: 22px;
     transform: translateX(-50%);
     display: flex;
-    gap: 9px;
-    padding: 10px;
-    background: rgba(5,8,18,.94);
-    border: 2px solid #263d68;
-    border-radius: 15px;
-    pointer-events: auto;
+    gap: 8px;
 }
 
-.skill {
-    width: 105px;
-    min-height: 70px;
-    border: 2px solid #34435f;
-    background: #11182a;
-    border-radius: 10px;
-    text-align: center;
-    padding: 8px;
+.slot {
+    width: 88px;
+    height: 88px;
+    background: rgba(10,15,25,.88);
+    border: 2px solid rgba(255,255,255,.12);
+    border-radius: 12px;
     position: relative;
-    overflow: hidden;
-}
-
-.skill.active {
-    border-color: #00eaff;
-    box-shadow: 0 0 12px rgba(0,234,255,.4);
-}
-
-.skill .key {
-    color: #00eaff;
-    font-size: 19px;
-    font-weight: 900;
-}
-
-.skill .name {
-    font-size: 10px;
-    margin-top: 5px;
-    color: white;
-}
-
-.skill .cd {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,.72);
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
-    font-weight: bold;
-    color: #fff;
+    flex-direction: column;
+    transition: .15s;
+    box-shadow: 0 5px 20px rgba(0,0,0,.3);
 }
 
-#controls {
+.slot.active {
+    border-color: #ffd54d;
+    transform: translateY(-8px);
+    box-shadow: 0 0 25px rgba(255,213,77,.35);
+}
+
+.slot .number {
     position: absolute;
-    left: 18px;
-    bottom: 20px;
-    background: rgba(0,0,0,.78);
-    padding: 12px 15px;
-    border-radius: 10px;
-    color: #c8cfdb;
-    font-size: 12px;
-    line-height: 1.7;
+    top: 5px;
+    left: 7px;
+    font-weight: bold;
+    color: #ffd54d;
+}
+
+.slot .icon {
+    font-size: 27px;
+}
+
+.slot .skill {
+    font-size: 10px;
+    margin-top: 4px;
+    text-align: center;
+    max-width: 78px;
+}
+
+#fruitInfo {
+    position: absolute;
+    left: 50%;
+    bottom: 122px;
+    transform: translateX(-50%);
+    background: rgba(5,10,18,.75);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
 }
 
 #interaction {
     position: absolute;
-    bottom: 125px;
     left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,.8);
-    border: 1px solid #00eaff;
-    padding: 10px 18px;
+    top: 55%;
+    transform: translate(-50%,-50%);
+    background: rgba(0,0,0,.72);
+    padding: 12px 18px;
     border-radius: 10px;
-    color: white;
     display: none;
+    font-weight: bold;
 }
 
-@media(max-width:700px) {
-    #stats {
-        width: 260px;
-        transform: scale(.85);
-        transform-origin: top left;
-    }
+#message {
+    position: absolute;
+    left: 50%;
+    top: 22%;
+    transform: translateX(-50%);
+    font-size: 22px;
+    font-weight: bold;
+    text-shadow: 0 3px 10px black;
+    opacity: 0;
+    transition: opacity .2s;
+}
 
-    #quest {
-        width: 230px;
-        transform: scale(.8);
-        transform-origin: top right;
-    }
+#crosshair {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    transform: translate(-50%,-50%);
+    border: 1px solid rgba(255,255,255,.8);
+    border-radius: 50%;
+}
 
-    #controls {
-        display: none;
-    }
+#help {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    font-size: 12px;
+    line-height: 1.7;
+    text-align: right;
+    opacity: .65;
+}
 
-    #hotbar {
-        gap: 4px;
-        padding: 5px;
-    }
-
-    .skill {
-        width: 65px;
-        min-height: 60px;
-    }
-
-    .skill .name {
-        font-size: 8px;
-    }
+#fade {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .4s;
 }
 </style>
 </head>
 
 <body>
 
-<div id="canvas-container"></div>
-
 <div id="ui">
 
-    <div id="stats" class="panel">
-        <div class="title">
-            NÍVEL <span id="level">1</span>
-            |
-            <span id="fruit-name">Fênix</span>
+    <div id="topLeft" class="panel">
+        <div id="playerName">Pirata</div>
+
+        <div style="font-size:11px;margin-bottom:4px">
+            VIDA
         </div>
 
         <div class="bar">
-            <div id="hp-fill"></div>
+            <div id="healthFill"></div>
+        </div>
+
+        <div style="font-size:11px;margin-top:8px;margin-bottom:4px">
+            XP
         </div>
 
         <div class="bar">
-            <div id="xp-fill"></div>
+            <div id="xpFill"></div>
         </div>
 
-        <div class="info">
-            <span>HP: <b id="hp-text">150/150</b></span>
-            <span>Beli: $<b id="beli">5000</b></span>
-        </div>
-
-        <div id="fruit-info">
-            Fruta: Fênix
+        <div id="stats">
+            Nível: <span id="level">1</span><br>
+            Beli: <span id="money">500</span><br>
+            Fruta: <span id="fruit">Nenhuma</span>
         </div>
     </div>
 
-    <div id="quest" class="panel">
-        <h3>📜 MISSÃO</h3>
-        <div id="quest-text">
-            Fale com o NPC azul usando E.
-        </div>
+    <div id="questBox" class="panel">
+        <div id="questTitle">Quest</div>
+        <div id="questProgress">0 / 5</div>
     </div>
 
-    <div id="npc-message"></div>
+    <div id="message"></div>
 
-    <div id="interaction">
-        Pressione <b>E</b> para interagir
+    <div id="interaction"></div>
+
+    <div id="fruitInfo">
+        Slot 1–5 • Clique para atacar • Q para esquivar
     </div>
 
-    <div id="fruit-menu">
-        <h2>🍎 MERCADO DE FRUTAS</h2>
-        <p>Escolha uma fruta para equipar.</p>
+    <div id="crosshair"></div>
 
-        <div id="fruit-grid" class="fruit-grid"></div>
+    <div id="hotbar"></div>
 
-        <button id="close-menu">FECHAR</button>
+    <div id="help">
+        WASD — mover<br>
+        SHIFT — correr<br>
+        ESPAÇO — pular<br>
+        1–5 — habilidades<br>
+        E — interagir<br>
+        Q — esquiva
     </div>
-
-    <div id="hotbar">
-        <div class="skill active" id="skill-z">
-            <div class="key">Z</div>
-            <div class="name"></div>
-            <div class="cd"></div>
-        </div>
-
-        <div class="skill" id="skill-x">
-            <div class="key">X</div>
-            <div class="name"></div>
-            <div class="cd"></div>
-        </div>
-
-        <div class="skill" id="skill-c">
-            <div class="key">C</div>
-            <div class="name"></div>
-            <div class="cd"></div>
-        </div>
-
-        <div class="skill" id="skill-v">
-            <div class="key">V</div>
-            <div class="name"></div>
-            <div class="cd"></div>
-        </div>
-
-        <div class="skill" id="skill-f">
-            <div class="key">F</div>
-            <div class="name"></div>
-            <div class="cd"></div>
-        </div>
-    </div>
-
-    <div id="controls">
-        <b>WASD</b> — Movimento<br>
-        <b>Espaço</b> — Pular<br>
-        <b>Z X C V F</b> — Skills<br>
-        <b>E</b> — Interagir<br>
-        <b>Mouse</b> — Câmera
-    </div>
-
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<div id="fade"></div>
 
-<script>
+<script type="module">
 
-/* =========================================================
-   FRUTAS
-========================================================= */
+import * as THREE from
+"https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js";
 
-const FRUITS = {
-
-    phoenix: {
-        name: "Fênix",
-        type: "Mythical Zoan",
-        color: "#00eaff",
-        skills: {
-            z: {name:"Garras Celestes", cd:2, damage:35},
-            x: {name:"Chama Regenerativa", cd:4, damage:45},
-            c: {name:"Investida Alada", cd:5, damage:65},
-            v: {name:"Explosão Fênix", cd:9, damage:100},
-            f: {name:"Renascimento Supremo", cd:15, damage:150}
-        }
-    },
-
-    dragon: {
-        name: "Dragão",
-        type: "Mythical Zoan",
-        color: "#a000ff",
-        skills: {
-            z: {name:"Garra do Dragão", cd:2, damage:45},
-            x: {name:"Sopro de Fogo", cd:4, damage:70},
-            c: {name:"Rugido Imperial", cd:5, damage:85},
-            v: {name:"Tempestade Dracônica", cd:10, damage:130},
-            f: {name:"Dragão Celestial", cd:16, damage:190}
-        }
-    },
-
-    distortion: {
-        name: "Distorção",
-        type: "Paramecia",
-        color: "#8a2be2",
-        skills: {
-            z: {name:"Fenda Espacial", cd:2, damage:40},
-            x: {name:"Buraco Negro", cd:5, damage:75},
-            c: {name:"Troca Dimensional", cd:6, damage:80},
-            v: {name:"Colapso Espacial", cd:11, damage:135},
-            f: {name:"Dimensão Absoluta", cd:17, damage:200}
-        }
-    },
-
-    ice: {
-        name: "Gelo Glacial",
-        type: "Logia",
-        color: "#00ffff",
-        skills: {
-            z: {name:"Lança Glacial", cd:2, damage:35},
-            x: {name:"Espinhos de Gelo", cd:4, damage:55},
-            c: {name:"Dragão Congelante", cd:6, damage:90},
-            v: {name:"Tempestade de Gelo", cd:10, damage:125},
-            f: {name:"Era Glacial", cd:15, damage:180}
-        }
-    },
-
-    flame: {
-        name: "Chama Solar",
-        type: "Logia",
-        color: "#ff4500",
-        skills: {
-            z: {name:"Punho Flamejante", cd:2, damage:40},
-            x: {name:"Coluna Solar", cd:4, damage:65},
-            c: {name:"Meteoros de Fogo", cd:6, damage:85},
-            v: {name:"Inferno Solar", cd:10, damage:135},
-            f: {name:"Supernova", cd:16, damage:210}
-        }
-    },
-
-    dough: {
-        name: "Dough / Massa",
-        type: "Special Paramecia",
-        color: "#ffcc88",
-        skills: {
-            z: {name:"Massa Chicote", cd:2, damage:45},
-            x: {name:"Punho Donut", cd:4, damage:70},
-            c: {name:"Massa Espinhosa", cd:6, damage:90},
-            v: {name:"Tempestade de Donuts", cd:11, damage:145},
-            f: {name:"Despertar da Massa", cd:17, damage:220}
-        }
-    }
-
-};
+import { OrbitControls } from
+"https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/controls/OrbitControls.js";
 
 
 /* =========================================================
-   VARIÁVEIS DO JOGO
-========================================================= */
-
-const playerData = {
-    level: 1,
-    xp: 0,
-    maxXp: 100,
-
-    hp: 150,
-    maxHp: 150,
-
-    beli: 5000,
-
-    currentFruit: "phoenix",
-
-    speed: 0.35,
-    vy: 0,
-    grounded: true,
-
-    questActive: false,
-    questKills: 0,
-
-    attack: false,
-
-    nearbyNPC: null
-};
-
-const keys = {};
-const cooldowns = {};
-
-let cameraYaw = 0;
-let cameraPitch = 0.35;
-let mouseDown = false;
-
-const enemies = [];
-const effects = [];
-
-
-/* =========================================================
-   THREE.JS
+   CONFIGURAÇÃO
 ========================================================= */
 
 const scene = new THREE.Scene();
 
-scene.background = new THREE.Color(0x263b5c);
+scene.background = new THREE.Color(0x82cfff);
 
-scene.fog = new THREE.Fog(
-    0x263b5c,
-    100,
-    600
+scene.fog = new THREE.FogExp2(
+    0x8bcfff,
+    0.006
 );
 
 const camera = new THREE.PerspectiveCamera(
-    60,
-    window.innerWidth / window.innerHeight,
+    70,
+    innerWidth / innerHeight,
     0.1,
-    2000
+    1500
 );
 
-camera.position.set(0,20,35);
-
+camera.position.set(
+    12,
+    12,
+    18
+);
 
 const renderer = new THREE.WebGLRenderer({
-    antialias:true,
-    alpha:false,
-    powerPreference:"high-performance"
+    antialias: true,
+    powerPreference: "high-performance"
 });
 
-renderer.setPixelRatio(
-    Math.min(window.devicePixelRatio || 1,2)
+renderer.setSize(
+    innerWidth,
+    innerHeight
 );
 
-renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
+renderer.setPixelRatio(
+    Math.min(devicePixelRatio, 2)
 );
 
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.outputColorSpace =
+    THREE.SRGBColorSpace;
 
-const container =
-    document.getElementById("canvas-container");
+renderer.toneMapping =
+    THREE.ACESFilmicToneMapping;
 
-container.innerHTML = "";
-container.appendChild(renderer.domElement);
+renderer.toneMappingExposure = 1.15;
+
+document.body.appendChild(renderer.domElement);
 
 
 /* =========================================================
@@ -610,23 +348,22 @@ container.appendChild(renderer.domElement);
 ========================================================= */
 
 const hemi = new THREE.HemisphereLight(
-    0xffffff,
-    0x304060,
-    2.5
+    0xbde7ff,
+    0x304d35,
+    2.2
 );
 
 scene.add(hemi);
 
-
 const sun = new THREE.DirectionalLight(
     0xffffff,
-    3
+    4
 );
 
 sun.position.set(
-    80,
-    130,
-    70
+    -100,
+    140,
+    80
 );
 
 sun.castShadow = true;
@@ -634,267 +371,574 @@ sun.castShadow = true;
 sun.shadow.mapSize.width = 2048;
 sun.shadow.mapSize.height = 2048;
 
+sun.shadow.camera.left = -250;
+sun.shadow.camera.right = 250;
+sun.shadow.camera.top = 250;
+sun.shadow.camera.bottom = -250;
+
 scene.add(sun);
 
 
-const blueLight = new THREE.PointLight(
-    0x44aaff,
-    100,
-    200
-);
+/* =========================================================
+   HELPERS
+========================================================= */
 
-blueLight.position.set(
-    0,
-    40,
-    30
-);
+function box(
+    w,
+    h,
+    d,
+    color,
+    x=0,
+    y=0,
+    z=0
+) {
 
-scene.add(blueLight);
+    const geo =
+        new THREE.BoxGeometry(w,h,d);
+
+    const mat =
+        new THREE.MeshStandardMaterial({
+            color,
+            roughness:.8
+        });
+
+    const mesh =
+        new THREE.Mesh(geo,mat);
+
+    mesh.position.set(x,y,z);
+
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
+    scene.add(mesh);
+
+    return mesh;
+}
+
+function sphere(
+    r,
+    color,
+    x=0,
+    y=0,
+    z=0
+) {
+
+    const geo =
+        new THREE.SphereGeometry(
+            r,
+            24,
+            16
+        );
+
+    const mat =
+        new THREE.MeshStandardMaterial({
+            color,
+            roughness:.65
+        });
+
+    const mesh =
+        new THREE.Mesh(geo,mat);
+
+    mesh.position.set(x,y,z);
+
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
+    scene.add(mesh);
+
+    return mesh;
+}
+
+function cylinder(
+    r,
+    h,
+    color,
+    x=0,
+    y=0,
+    z=0
+) {
+
+    const geo =
+        new THREE.CylinderGeometry(
+            r,r,h,20
+        );
+
+    const mat =
+        new THREE.MeshStandardMaterial({
+            color,
+            roughness:.75
+        });
+
+    const mesh =
+        new THREE.Mesh(geo,mat);
+
+    mesh.position.set(x,y,z);
+
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
+    scene.add(mesh);
+
+    return mesh;
+}
 
 
 /* =========================================================
-   MUNDO
+   MAR
 ========================================================= */
 
-const oceanMaterial =
-    new THREE.MeshStandardMaterial({
-        color:0x087ca8,
-        roughness:.2,
-        metalness:.5
+const oceanGeo =
+    new THREE.PlaneGeometry(
+        1200,
+        1200,
+        80,
+        80
+    );
+
+const oceanMat =
+    new THREE.MeshPhysicalMaterial({
+        color:0x0877b8,
+        roughness:.15,
+        metalness:.05,
+        transmission:.05,
+        transparent:true,
+        opacity:.93
     });
 
 const ocean =
     new THREE.Mesh(
-        new THREE.PlaneGeometry(1000,1000),
-        oceanMaterial
+        oceanGeo,
+        oceanMat
     );
 
-ocean.rotation.x = -Math.PI/2;
-ocean.position.y = -2;
+ocean.rotation.x =
+    -Math.PI/2;
+
+ocean.position.y =
+    -1;
 
 ocean.receiveShadow = true;
 
 scene.add(ocean);
 
 
-const islandMaterial =
-    new THREE.MeshStandardMaterial({
-        color:0x3c5b3a,
-        roughness:.9
-    });
+/* =========================================================
+   ILHA
+========================================================= */
 
 const island =
-    new THREE.Mesh(
-        new THREE.CylinderGeometry(
-            65,
-            70,
-            6,
-            48
-        ),
-        islandMaterial
+    cylinder(
+        70,
+        5,
+        0x3d873d,
+        0,
+        1.5,
+        0
     );
 
-island.position.y = 1;
+island.scale.z = .85;
 
-island.receiveShadow = true;
 
-scene.add(island);
+/* praia */
+
+const beach =
+    cylinder(
+        73,
+        1.8,
+        0xd8bd70,
+        0,
+        -.1,
+        0
+    );
+
+beach.scale.z = .85;
+
+
+/* interior verde */
+
+const grass =
+    cylinder(
+        67,
+        2,
+        0x3d913f,
+        0,
+        .9,
+        0
+    );
+
+grass.scale.z = .83;
 
 
 /* =========================================================
-   DECORAÇÃO
+   MONTANHAS
 ========================================================= */
 
-function createTree(x,z) {
+function mountain(x,z,s,color=0x596b53){
 
-    const group = new THREE.Group();
-
-    const trunk =
+    const m =
         new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                .45,
-                .65,
-                4,
+            new THREE.ConeGeometry(
+                s,
+                s*2.3,
                 8
             ),
             new THREE.MeshStandardMaterial({
-                color:0x714b2a
+                color
             })
         );
 
-    trunk.position.y = 5;
+    m.position.set(
+        x,
+        s,
+        z
+    );
 
-    trunk.castShadow = true;
+    m.castShadow = true;
 
-    group.add(trunk);
+    scene.add(m);
+
+    return m;
+}
+
+mountain(-38,-18,18);
+mountain(34,-25,22);
+mountain(42,28,17);
+mountain(-42,27,15);
+
+mountain(0,40,13,0x61755b);
 
 
-    const leaves =
+/* =========================================================
+   ÁRVORES
+========================================================= */
+
+function tree(x,z){
+
+    const trunk =
+        cylinder(
+            1.1,
+            7,
+            0x684027,
+            x,
+            4,
+            z
+        );
+
+    const crown =
+        sphere(
+            4.5,
+            0x1d6e36,
+            x,
+            8.2,
+            z
+        );
+
+    const crown2 =
+        sphere(
+            3.5,
+            0x278344,
+            x+2,
+            10,
+            z+1
+        );
+
+    return {
+        trunk,
+        crown,
+        crown2
+    };
+}
+
+const treePositions = [
+    [-48,-4],
+    [-43,8],
+    [-51,19],
+    [-35,39],
+    [-17,42],
+    [18,43],
+    [37,39],
+    [48,16],
+    [51,2],
+    [45,-12],
+    [-48,-23],
+    [-28,-38],
+    [-4,-43],
+    [22,-40],
+    [45,-30]
+];
+
+treePositions.forEach(
+    p => tree(...p)
+);
+
+
+/* =========================================================
+   CASAS
+========================================================= */
+
+function house(x,z){
+
+    const base =
+        box(
+            10,
+            5,
+            8,
+            0xc28a50,
+            x,
+            4,
+            z
+        );
+
+    const roof =
         new THREE.Mesh(
-            new THREE.SphereGeometry(
-                2.7,
-                12,
-                12
+            new THREE.ConeGeometry(
+                7.5,
+                5,
+                4
             ),
             new THREE.MeshStandardMaterial({
-                color:0x168238
+                color:0x9b2d2d
             })
         );
 
-    leaves.position.y = 7;
+    roof.position.set(
+        x,
+        8.5,
+        z
+    );
 
-    leaves.castShadow = true;
+    roof.rotation.y =
+        Math.PI/4;
 
-    group.add(leaves);
+    roof.castShadow = true;
 
-    group.position.set(x,0,z);
+    scene.add(roof);
 
-    scene.add(group);
+    box(
+        2.5,
+        3,
+        .3,
+        0x3d2419,
+        x,
+        2.8,
+        z-4.15
+    );
+
+    box(
+        2,
+        2,
+        .3,
+        0x72c6df,
+        x-3,
+        5,
+        z-4.15
+    );
+
+    return base;
 }
 
+house(-16,5);
+house(17,4);
+house(5,-20);
 
-for(let i=0;i<35;i++) {
 
-    const angle =
-        Math.random()*Math.PI*2;
+/* =========================================================
+   PÍER
+========================================================= */
 
-    const radius =
-        15 + Math.random()*45;
+for(let i=0;i<14;i++){
 
-    createTree(
-        Math.cos(angle)*radius,
-        Math.sin(angle)*radius
+    box(
+        4,
+        .6,
+        5,
+        0x754d2c,
+        -4,
+        1.2,
+        -65-i*5
     );
 }
+
+
+/* =========================================================
+   NUVENS
+========================================================= */
+
+const clouds = [];
+
+function cloud(x,y,z){
+
+    const g =
+        new THREE.Group();
+
+    for(let i=0;i<7;i++){
+
+        const c =
+            sphere(
+                5 + Math.random()*3,
+                0xffffff,
+                (i-3)*4,
+                Math.random()*2,
+                Math.sin(i)*4
+            );
+
+        c.castShadow = false;
+
+        g.add(c);
+    }
+
+    g.position.set(x,y,z);
+
+    scene.add(g);
+
+    clouds.push(g);
+}
+
+cloud(-80,70,-80);
+cloud(30,90,-100);
+cloud(100,75,0);
+cloud(-90,85,70);
+cloud(20,100,80);
 
 
 /* =========================================================
    PERSONAGEM
 ========================================================= */
 
-function createCharacter(
-    skinColor,
-    shirtColor
-) {
+function createCharacter(color=0x3498db){
 
-    const group = new THREE.Group();
+    const root =
+        new THREE.Group();
 
-    const skin =
-        new THREE.MeshStandardMaterial({
-            color:skinColor,
-            roughness:.7
-        });
-
-    const shirt =
-        new THREE.MeshStandardMaterial({
-            color:shirtColor,
-            roughness:.6
-        });
-
-
-    const torso =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                1.5,
-                1.8,
-                .8
-            ),
-            shirt
+    const body =
+        box(
+            2.5,
+            3,
+            1.5,
+            color
         );
 
-    torso.position.y = 4.1;
+    body.position.y = 4.5;
 
-    torso.castShadow = true;
-
-    group.add(torso);
-
+    root.add(body);
 
     const head =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                1.2,
-                1.2,
-                1.2
-            ),
-            skin
+        sphere(
+            1.35,
+            0xffc49b
         );
 
-    head.position.y = 5.7;
+    head.position.y = 7;
 
-    head.castShadow = true;
+    root.add(head);
 
-    group.add(head);
+    const eye1 =
+        box(
+            .18,
+            .18,
+            .1,
+            0x111111
+        );
 
+    eye1.position.set(
+        -.45,
+        7.1,
+        -1.22
+    );
+
+    root.add(eye1);
+
+    const eye2 =
+        eye1.clone();
+
+    eye2.position.x =
+        .45;
+
+    root.add(eye2);
 
     const armL =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                .45,
-                1.7,
-                .45
-            ),
-            shirt
+        box(
+            .65,
+            3,
+            .65,
+            color
         );
 
     armL.position.set(
-        -1.05,
-        4.05,
+        -1.7,
+        4.5,
         0
     );
 
-    armL.castShadow = true;
+    root.add(armL);
 
-    group.add(armL);
+    const armR =
+        box(
+            .65,
+            3,
+            .65,
+            color
+        );
 
+    armR.position.set(
+        1.7,
+        4.5,
+        0
+    );
 
-    const armR = armL.clone();
-
-    armR.position.x = 1.05;
-
-    group.add(armR);
-
+    root.add(armR);
 
     const legL =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                .55,
-                1.8,
-                .55
-            ),
-            skin
+        box(
+            .75,
+            3,
+            .8,
+            0x222b45
         );
 
     legL.position.set(
-        -.4,
-        2.25,
+        -.75,
+        1.5,
         0
     );
 
-    legL.castShadow = true;
+    root.add(legL);
 
-    group.add(legL);
+    const legR =
+        box(
+            .75,
+            3,
+            .8,
+            0x222b45
+        );
 
+    legR.position.set(
+        .75,
+        1.5,
+        0
+    );
 
-    const legR = legL.clone();
+    root.add(legR);
 
-    legR.position.x = .4;
+    root.userData = {
+        body,
+        head,
+        armL,
+        armR,
+        legL,
+        legR,
+        baseColor:color,
+        walking:false,
+        attacking:false
+    };
 
-    group.add(legR);
+    scene.add(root);
 
-
-    return group;
+    return root;
 }
 
-
-/* =========================================================
-   PLAYER
-========================================================= */
-
 const player =
-    createCharacter(
-        0xffcc99,
-        0x00aaff
-    );
+    createCharacter(0x2979ff);
 
 player.position.set(
     0,
@@ -902,143 +946,719 @@ player.position.set(
     15
 );
 
-scene.add(player);
+
+/* =========================================================
+   FRUTAS
+========================================================= */
+
+const fruits = {
+
+    flame:{
+        name:"Mera",
+        color:0xff3b20,
+        icon:"🔥",
+        skills:[
+            "Fire Fist",
+            "Flame Burst",
+            "Fire Pillar",
+            "Meteor",
+            "Inferno"
+        ]
+    },
+
+    ice:{
+        name:"Hie",
+        color:0x69dfff,
+        icon:"❄️",
+        skills:[
+            "Ice Spear",
+            "Ice Burst",
+            "Frozen Wave",
+            "Ice Prison",
+            "Absolute Zero"
+        ]
+    },
+
+    light:{
+        name:"Pika",
+        color:0xfff36b,
+        icon:"⚡",
+        skills:[
+            "Light Kick",
+            "Laser",
+            "Flash Step",
+            "Light Rain",
+            "Sacred Beam"
+        ]
+    },
+
+    quake:{
+        name:"Gura",
+        color:0x9b6cff,
+        icon:"💥",
+        skills:[
+            "Shock Punch",
+            "Earthquake",
+            "Crack Wave",
+            "Tremor",
+            "World Breaker"
+        ]
+    },
+
+    beast:{
+        name:"Beast",
+        color:0x55c94f,
+        icon:"🐺",
+        skills:[
+            "Claw",
+            "Roar",
+            "Dash",
+            "Beast Slam",
+            "Transformation"
+        ]
+    }
+
+};
+
+let currentFruit =
+    fruits.flame;
 
 
 /* =========================================================
-   NPC
+   HOTBAR
 ========================================================= */
 
-function createNPC(
-    x,
-    z,
-    color,
-    name
-) {
+const hotbar =
+    document.getElementById("hotbar");
 
-    const npc =
-        createCharacter(
-            0xffcc99,
-            color
+function renderHotbar(){
+
+    hotbar.innerHTML = "";
+
+    currentFruit.skills.forEach(
+        (skill,i)=>{
+
+            const slot =
+                document.createElement("div");
+
+            slot.className =
+                "slot" +
+                (i===0 ? " active":"");
+
+            slot.innerHTML = `
+                <span class="number">${i+1}</span>
+                <div class="icon">
+                    ${currentFruit.icon}
+                </div>
+                <div class="skill">
+                    ${skill}
+                </div>
+            `;
+
+            slot.onclick =
+                () => useSkill(i);
+
+            hotbar.appendChild(slot);
+        }
+    );
+}
+
+renderHotbar();
+
+
+/* =========================================================
+   PLAYER STATS
+========================================================= */
+
+let playerHealth = 100;
+let maxHealth = 100;
+
+let level = 1;
+let xp = 0;
+let xpNeeded = 100;
+let money = 500;
+
+let attacking = false;
+let transformed = false;
+
+const keys = {};
+
+addEventListener(
+    "keydown",
+    e => {
+
+        keys[e.code] = true;
+
+        
+        if(e.key >= "1" && e.key <= "5"){
+            useSkill(Number(e.key) - 1);
+        }
+
+        if(e.code === "Space"){
+            jump();
+        }
+
+        if(e.code === "KeyQ"){
+            dodge();
+        }
+
+        if(e.code === "KeyE"){
+            interact();
+        }
+
+        if(e.code === "ShiftLeft" || e.code === "ShiftRight"){
+            sprinting = true;
+        }
+    }
+);
+
+addEventListener(
+    "keyup",
+    e => {
+        keys[e.code] = false;
+
+        if(e.code === "ShiftLeft" || e.code === "ShiftRight"){
+            sprinting = false;
+        }
+    }
+);
+
+
+/* =========================================================
+   MOVIMENTO
+========================================================= */
+
+let velocityY = 0;
+let grounded = true;
+let sprinting = false;
+let dodging = false;
+
+const gravity = -28;
+const walkSpeed = 15;
+const sprintSpeed = 25;
+
+function jump(){
+
+    if(!grounded || dodging) return;
+
+    velocityY = 13;
+    grounded = false;
+}
+
+
+function dodge(){
+
+    if(dodging) return;
+
+    dodging = true;
+
+    const direction = new THREE.Vector3();
+
+    if(keys.KeyW) direction.z -= 1;
+    if(keys.KeyS) direction.z += 1;
+    if(keys.KeyA) direction.x -= 1;
+    if(keys.KeyD) direction.x += 1;
+
+    if(direction.lengthSq() === 0){
+        direction.z = -1;
+    }
+
+    direction.normalize();
+
+    const start =
+        player.position.clone();
+
+    const end =
+        start.clone().add(
+            direction.multiplyScalar(9)
         );
 
-    npc.position.set(
-        x,
-        0,
-        z
-    );
+    let t = 0;
 
-    npc.userData.npc = name;
+    function dash(){
 
-    scene.add(npc);
+        t += .12;
 
-    return npc;
+        player.position.lerp(
+            end,
+            .35
+        );
+
+        if(t < 1){
+            requestAnimationFrame(dash);
+        }else{
+            dodging = false;
+        }
+    }
+
+    dash();
 }
-
-
-const fruitNPC =
-    createNPC(
-        10,
-        -10,
-        0xb000ff,
-        "fruit"
-    );
-
-
-const questNPC =
-    createNPC(
-        -10,
-        -10,
-        0x0055ff,
-        "quest"
-    );
 
 
 /* =========================================================
-   PLACA NPC
+   VIDA / XP
 ========================================================= */
 
-function createLabel(
-    text,
-    color,
-    position
-) {
+function updateUI(){
 
-    const canvas =
-        document.createElement("canvas");
+    document.getElementById("healthFill").style.width =
+        `${Math.max(0, playerHealth / maxHealth * 100)}%`;
 
-    canvas.width = 512;
-    canvas.height = 128;
+    document.getElementById("xpFill").style.width =
+        `${Math.min(100, xp / xpNeeded * 100)}%`;
 
-    const ctx =
-        canvas.getContext("2d");
+    document.getElementById("level").textContent =
+        level;
 
-    ctx.fillStyle = "rgba(0,0,0,.75)";
-    ctx.fillRect(0,0,512,128);
+    document.getElementById("money").textContent =
+        money;
 
-    ctx.font = "bold 42px Arial";
+    document.getElementById("fruit").textContent =
+        currentFruit.name;
+}
 
-    ctx.textAlign = "center";
+updateUI();
 
-    ctx.fillStyle = color;
 
-    ctx.fillText(
-        text,
-        256,
-        78
-    );
+function gainXP(amount){
 
-    const texture =
-        new THREE.CanvasTexture(canvas);
+    xp += amount;
 
-    const material =
-        new THREE.SpriteMaterial({
-            map:texture,
-            transparent:true
-        });
+    while(xp >= xpNeeded){
 
-    const sprite =
-        new THREE.Sprite(material);
+        xp -= xpNeeded;
+        level++;
 
-    sprite.scale.set(
-        5,
-        1.25,
-        1
-    );
+        xpNeeded =
+            Math.floor(
+                xpNeeded * 1.35
+            );
 
-    sprite.position.copy(position);
+        maxHealth += 15;
+        playerHealth = maxHealth;
 
-    scene.add(sprite);
+        showMessage(
+            `LEVEL UP! Nível ${level}`,
+            "#ffd54d"
+        );
+    }
 
-    return sprite;
+    updateUI();
 }
 
 
-createLabel(
-    "🍎 FRUTAS",
-    "#ff00ff",
-    new THREE.Vector3(10,8,-10)
-);
+function damagePlayer(amount){
+
+    if(dodging) return;
+
+    playerHealth -= amount;
+
+    updateUI();
+
+    if(playerHealth <= 0){
+
+        playerHealth = maxHealth;
+
+        player.position.set(
+            0,
+            0,
+            15
+        );
+
+        showMessage(
+            "Você foi derrotado!",
+            "#ff4d5d"
+        );
+
+        fadeScreen();
+    }
+}
 
 
-createLabel(
-    "📜 MISSÃO",
-    "#00aaff",
-    new THREE.Vector3(-10,8,-10)
-);
+/* =========================================================
+   MENSAGENS
+========================================================= */
+
+let messageTimer = null;
+
+function showMessage(text,color="#ffffff"){
+
+    const el =
+        document.getElementById("message");
+
+    el.textContent = text;
+    el.style.color = color;
+    el.style.opacity = "1";
+
+    clearTimeout(messageTimer);
+
+    messageTimer =
+        setTimeout(()=>{
+            el.style.opacity = "0";
+        },1800);
+}
+
+
+/* =========================================================
+   FRUTAS / HABILIDADES
+========================================================= */
+
+function createEffect(position,color,type="sphere"){
+
+    let mesh;
+
+    if(type === "ring"){
+
+        mesh =
+            new THREE.Mesh(
+                new THREE.RingGeometry(
+                    .5,
+                    2.5,
+                    32
+                ),
+                new THREE.MeshBasicMaterial({
+                    color,
+                    transparent:true,
+                    opacity:.9,
+                    side:THREE.DoubleSide
+                })
+            );
+
+        mesh.rotation.x =
+            -Math.PI/2;
+
+    }else{
+
+        mesh =
+            new THREE.Mesh(
+                new THREE.SphereGeometry(
+                    1,
+                    16,
+                    12
+                ),
+                new THREE.MeshBasicMaterial({
+                    color,
+                    transparent:true,
+                    opacity:.8
+                })
+            );
+    }
+
+    mesh.position.copy(position);
+
+    scene.add(mesh);
+
+    let scale = 1;
+    let opacity = .8;
+
+    function animateEffect(){
+
+        scale += .12;
+        opacity -= .035;
+
+        mesh.scale.setScalar(scale);
+
+        if(mesh.material.opacity !== undefined){
+            mesh.material.opacity = opacity;
+        }
+
+        if(opacity <= 0){
+
+            scene.remove(mesh);
+
+            if(mesh.geometry) mesh.geometry.dispose();
+            if(mesh.material) mesh.material.dispose();
+
+            return;
+        }
+
+        requestAnimationFrame(
+            animateEffect
+        );
+    }
+
+    animateEffect();
+}
+
+
+function useSkill(index){
+
+    if(attacking || dodging) return;
+
+    if(index < 0 || index > 4) return;
+
+    attacking = true;
+
+    document
+        .querySelectorAll(".slot")
+        .forEach((slot,i)=>{
+            slot.classList.toggle(
+                "active",
+                i === index
+            );
+        });
+
+    const skill =
+        currentFruit.skills[index];
+
+    showMessage(
+        skill,
+        "#" + currentFruit.color
+            .toString(16)
+            .padStart(6,"0")
+    );
+
+    const forward =
+        new THREE.Vector3(
+            0,
+            0,
+            -1
+        );
+
+    forward.applyQuaternion(
+        player.quaternion
+    );
+
+    const start =
+        player.position.clone();
+
+    start.y += 4;
+
+    const power =
+        7 + index * 3;
+
+    if(currentFruit === fruits.flame){
+
+        createEffect(
+            start.clone().add(
+                forward.clone().multiplyScalar(5)
+            ),
+            0xff3b20
+        );
+
+        damageEnemies(
+            start,
+            forward,
+            power,
+            18 + index * 12
+        );
+
+    }else if(currentFruit === fruits.ice){
+
+        createEffect(
+            start.clone().add(
+                forward.clone().multiplyScalar(5)
+            ),
+            0x69dfff
+        );
+
+        damageEnemies(
+            start,
+            forward,
+            power + 2,
+            15 + index * 10
+        );
+
+    }else if(currentFruit === fruits.light){
+
+        createEffect(
+            start.clone().add(
+                forward.clone().multiplyScalar(7)
+            ),
+            0xfff36b
+        );
+
+        damageEnemies(
+            start,
+            forward,
+            power + 5,
+            22 + index * 13
+        );
+
+    }else if(currentFruit === fruits.quake){
+
+        createEffect(
+            player.position.clone(),
+            0x9b6cff,
+            "ring"
+        );
+
+        damageEnemies(
+            start,
+            forward,
+            14 + index * 3,
+            25 + index * 14
+        );
+
+    }else if(currentFruit === fruits.beast){
+
+        if(index === 4){
+
+            transformed =
+                !transformed;
+
+            if(transformed){
+
+                player.scale.set(
+                    1.35,
+                    1.35,
+                    1.35
+                );
+
+                showMessage(
+                    "TRANSFORMAÇÃO!",
+                    "#55ff66"
+                );
+
+            }else{
+
+                player.scale.set(
+                    1,
+                    1,
+                    1
+                );
+            }
+
+        }else{
+
+            createEffect(
+                start.clone().add(
+                    forward.clone().multiplyScalar(4)
+                ),
+                0x55c94f
+            );
+
+            damageEnemies(
+                start,
+                forward,
+                power + 3,
+                20 + index * 12
+            );
+        }
+    }
+
+    setTimeout(()=>{
+        attacking = false;
+    },350);
+}
+
+
+/* =========================================================
+   DANO NOS INIMIGOS
+========================================================= */
+
+function damageEnemies(
+    origin,
+    direction,
+    range,
+    damage
+){
+
+    enemies.forEach(enemy => {
+
+        if(enemy.userData.dead) return;
+
+        const enemyPos =
+            enemy.position.clone();
+
+        enemyPos.y += 3;
+
+        const distance =
+            origin.distanceTo(enemyPos);
+
+        if(distance > range) return;
+
+        const toEnemy =
+            enemyPos
+                .sub(origin)
+                .normalize();
+
+        const dot =
+            direction.dot(toEnemy);
+
+        if(dot > .15){
+
+            hitEnemy(
+                enemy,
+                damage
+            );
+        }
+    });
+}
+
+
+function hitEnemy(enemy,damage){
+
+    enemy.userData.health -= damage;
+
+    enemy.userData.hitFlash = .15;
+
+    if(enemy.userData.health <= 0){
+
+        enemy.userData.dead = true;
+
+        gainXP(
+            enemy.userData.xp
+        );
+
+        money +=
+            enemy.userData.money;
+
+        updateUI();
+
+        showMessage(
+            `+${enemy.userData.xp} XP  +${enemy.userData.money} Beli`,
+            "#ffd54d"
+        );
+
+        let timer = 0;
+
+        function deathAnimation(){
+
+            timer += .06;
+
+            enemy.rotation.z += .12;
+            enemy.scale.multiplyScalar(.94);
+
+            if(timer < 1){
+
+                requestAnimationFrame(
+                    deathAnimation
+                );
+
+            }else{
+
+                scene.remove(enemy);
+
+                const index =
+                    enemies.indexOf(enemy);
+
+                if(index !== -1){
+                    enemies.splice(index,1);
+                }
+
+                setTimeout(
+                    () => spawnEnemy(),
+                    5000
+                );
+            }
+        }
+
+        deathAnimation();
+    }
+}
 
 
 /* =========================================================
    INIMIGOS
 ========================================================= */
 
-function spawnEnemy(x,z) {
+const enemies = [];
+
+function createEnemy(x,z){
 
     const enemy =
-        createCharacter(
-            0xffaa88,
-            0x242424
-        );
+        createCharacter(0xc62828);
 
     enemy.position.set(
         x,
@@ -1046,642 +1666,874 @@ function spawnEnemy(x,z) {
         z
     );
 
-    enemy.userData.hp = 100;
-    enemy.userData.maxHp = 100;
+    enemy.scale.setScalar(.95);
 
-    enemy.userData.spawnX = x;
-    enemy.userData.spawnZ = z;
+    enemy.userData.health = 70;
+    enemy.userData.maxHealth = 70;
+    enemy.userData.xp = 35;
+    enemy.userData.money = 25;
 
+    enemy.userData.attackCooldown = 0;
+    enemy.userData.hitFlash = 0;
     enemy.userData.dead = false;
 
-    scene.add(enemy);
-
     enemies.push(enemy);
+
+    return enemy;
 }
 
 
-spawnEnemy(20,5);
-spawnEnemy(-20,5);
-spawnEnemy(25,-15);
-spawnEnemy(-25,-15);
-spawnEnemy(0,-30);
-spawnEnemy(30,25);
-spawnEnemy(-30,25);
+function spawnEnemy(){
 
+    const angle =
+        Math.random() * Math.PI * 2;
 
-/* =========================================================
-   EFEITOS
-========================================================= */
+    const radius =
+        30 + Math.random() * 25;
 
-function effectSphere(
-    position,
-    color,
-    size,
-    duration
-) {
+    const x =
+        Math.cos(angle) * radius;
 
-    const mesh =
-        new THREE.Mesh(
-            new THREE.SphereGeometry(
-                size,
-                20,
-                20
-            ),
-            new THREE.MeshBasicMaterial({
-                color:color,
-                transparent:true,
-                opacity:.75
-            })
-        );
+    const z =
+        Math.sin(angle) * radius;
 
-    mesh.position.copy(position);
-
-    scene.add(mesh);
-
-    effects.push({
-        mesh,
-        life:duration,
-        max:duration,
-        grow:size*.04
-    });
+    createEnemy(x,z);
 }
 
 
-function effectRing(
-    position,
-    color,
-    size,
-    duration
-) {
+for(let i=0;i<7;i++){
 
-    const mesh =
-        new THREE.Mesh(
-            new THREE.TorusGeometry(
-                size,
-                .15,
-                8,
-                32
-            ),
-            new THREE.MeshBasicMaterial({
-                color:color,
-                transparent:true,
-                opacity:.9
-            })
-        );
+    const angle =
+        Math.random() * Math.PI * 2;
 
-    mesh.rotation.x =
-        Math.PI/2;
+    const radius =
+        20 + Math.random() * 35;
 
-    mesh.position.copy(position);
-
-    scene.add(mesh);
-
-    effects.push({
-        mesh,
-        life:duration,
-        max:duration,
-        grow:.08
-    });
-}
-
-
-/* =========================================================
-   DANO
-========================================================= */
-
-function damageEnemies(
-    position,
-    radius,
-    damage
-) {
-
-    enemies.forEach(enemy => {
-
-        if(enemy.userData.dead)
-            return;
-
-        const distance =
-            enemy.position.distanceTo(
-                position
-            );
-
-        if(distance <= radius) {
-
-            enemy.userData.hp -= damage;
-
-            effectSphere(
-                enemy.position.clone()
-                    .add(new THREE.Vector3(0,4,0)),
-                0xff2244,
-                .5,
-                250
-            );
-
-            if(
-                enemy.userData.hp <= 0
-            ) {
-
-                killEnemy(enemy);
-            }
-        }
-    });
-}
-
-
-/* =========================================================
-   MORTE INIMIGO
-========================================================= */
-
-function killEnemy(enemy) {
-
-    if(enemy.userData.dead)
-        return;
-
-    enemy.userData.dead = true;
-
-    playerData.xp += 30;
-
-    playerData.beli += 100;
-
-    if(playerData.questActive) {
-
-        playerData.questKills++;
-
-        updateQuest();
-    }
-
-    showMessage(
-        "+30 XP  +100 Beli"
+    createEnemy(
+        Math.cos(angle)*radius,
+        Math.sin(angle)*radius
     );
-
-    updateUI();
-
-
-    setTimeout(() => {
-
-        enemy.userData.hp =
-            enemy.userData.maxHp;
-
-        enemy.position.set(
-            enemy.userData.spawnX,
-            0,
-            enemy.userData.spawnZ
-        );
-
-        enemy.userData.dead = false;
-
-    },2500);
 }
 
 
 /* =========================================================
-   LEVEL
+   QUEST
 ========================================================= */
 
-function checkLevel() {
+const questBox =
+    document.getElementById("questBox");
 
-    while(
-        playerData.xp >=
-        playerData.maxXp
-    ) {
+const questTitle =
+    document.getElementById("questTitle");
 
-        playerData.xp -=
-            playerData.maxXp;
+const questProgress =
+    document.getElementById("questProgress");
 
-        playerData.level++;
+let questActive = true;
 
-        playerData.maxXp =
-            Math.floor(
-                playerData.maxXp * 1.35
-            );
+const quest = {
 
-        playerData.maxHp += 35;
+    title:"Derrote 5 inimigos",
 
-        playerData.hp =
-            playerData.maxHp;
+    target:5,
+
+    progress:0,
+
+    rewardXP:150,
+
+    rewardMoney:300
+
+};
+
+questBox.style.display = "block";
+
+questTitle.textContent =
+    quest.title;
+
+
+function updateQuest(){
+
+    questProgress.textContent =
+        `${quest.progress} / ${quest.target}`;
+
+    if(quest.progress >= quest.target){
+
+        questActive = false;
+
+        money += quest.rewardMoney;
+
+        gainXP(
+            quest.rewardXP
+        );
+
+        questTitle.textContent =
+            "Quest completa!";
+
+        questProgress.textContent =
+            `+${quest.rewardXP} XP • +${quest.rewardMoney} Beli`;
 
         showMessage(
-            "LEVEL UP! NÍVEL " +
-            playerData.level
+            "QUEST COMPLETA!",
+            "#ffd54d"
         );
     }
 }
 
 
-/* =========================================================
-   SKILLS
-========================================================= */
+/* aumentar quest ao derrotar inimigo */
 
-function castSkill(key) {
-
-    if(!FRUITS[playerData.currentFruit])
-        return;
-
-    if(cooldowns[key])
-        return;
-
-    const fruit =
-        FRUITS[playerData.currentFruit];
-
-    const skill =
-        fruit.skills[key];
-
-    if(!skill)
-        return;
-
-    cooldowns[key] = true;
-
-    startCooldown(
-        key,
-        skill.cd
-    );
-
-
-    playerData.attack = true;
-
-
-    const forward =
-        new THREE.Vector3(
-            Math.sin(player.rotation.y),
-            0,
-            Math.cos(player.rotation.y)
-        );
-
-    const center =
-        player.position.clone()
-            .add(
-                forward.clone()
-                    .multiplyScalar(4)
-            );
-
-    const damage =
-        skill.damage +
-        playerData.level * 4;
-
-
-    /* FÊNIX */
-
-    if(playerData.currentFruit === "phoenix") {
-
-        if(key === "z")
-            effectRing(center,0x00ffff,2,350);
-
-        if(key === "x") {
-
-            playerData.hp =
-                Math.min(
-                    playerData.maxHp,
-                    playerData.hp + 35
-                );
-
-            effectSphere(
-                player.position.clone()
-                    .add(new THREE.Vector3(0,3,0)),
-                0x00ffff,
-                3,
-                600
-            );
-        }
-
-        if(key === "c") {
-
-            player.position.add(
-                forward.clone()
-                    .multiplyScalar(10)
-            );
-
-            effectRing(
-                player.position,
-                0xffd700,
-                3,
-                500
-            );
-        }
-
-        if(key === "v")
-            effectSphere(
-                player.position,
-                0x00ffff,
-                7,
-                650
-            );
-
-        if(key === "f") {
-
-            effectSphere(
-                player.position,
-                0xffd700,
-                11,
-                1000
-            );
-
-            playerData.hp =
-                playerData.maxHp;
-        }
-    }
-
-
-    /* DRAGÃO */
-
-    if(playerData.currentFruit === "dragon") {
-
-        if(key === "z")
-            effectRing(center,0xaa00ff,2.5,400);
-
-        if(key === "x")
-            effectSphere(center,0xff3300,4,500);
-
-        if(key === "c")
-            effectRing(player.position,0xffd700,7,600);
-
-        if(key === "v")
-            effectSphere(player.position,0xaa00ff,9,800);
-
-        if(key === "f")
-            effectSphere(player.position,0xff5500,14,1100);
-    }
-
-
-    /* DISTORÇÃO */
-
-    if(playerData.currentFruit === "distortion") {
-
-        if(key === "z")
-            effectRing(center,0xaa00ff,3,400);
-
-        if(key === "x")
-            effectSphere(center,0x12001f,4,600);
-
-        if(key === "c") {
-
-            const target =
-                getNearestEnemy();
-
-            if(target) {
-
-                const old =
-                    player.position.clone();
-
-                player.position.copy(
-                    target.position
-                );
-
-                target.position.copy(
-                    old
-                );
-            }
-        }
-
-        if(key === "v")
-            effectSphere(
-                player.position,
-                0x6600ff,
-                10,
-                900
-            );
-
-        if(key === "f")
-            effectSphere(
-                player.position,
-                0x110022,
-                15,
-                1200
-            );
-    }
-
-
-    /* GELO */
-
-    if(playerData.currentFruit === "ice") {
-
-        if(key === "z")
-            effectRing(center,0x00ffff,2,350);
-
-        if(key === "x")
-            effectSphere(center,0x88ffff,4,500);
-
-        if(key === "c")
-            effectRing(center,0xffffff,5,650);
-
-        if(key === "v")
-            effectSphere(
-                player.position,
-                0x55ffff,
-                10,
-                900
-            );
-
-        if(key === "f")
-            effectSphere(
-                player.position,
-                0xffffff,
-                15,
-                1200
-            );
-    }
-
-
-    /* CHAMA */
-
-    if(playerData.currentFruit === "flame") {
-
-        if(key === "z")
-            effectSphere(center,0xff4400,2,350);
-
-        if(key === "x")
-            effectRing(center,0xff6600,4,500);
-
-        if(key === "c")
-            effectSphere(center,0xff2200,5,600);
-
-        if(key === "v")
-            effectSphere(
-                player.position,
-                0xff3300,
-                10,
-                900
-            );
-
-        if(key === "f")
-            effectSphere(
-                player.position,
-                0xff0000,
-                16,
-                1300
-            );
-    }
-
-
-    /* DOUGH */
-
-    if(playerData.currentFruit === "dough") {
-
-        if(key === "z")
-            effectRing(center,0xffcc88,2.5,350);
-
-        if(key === "x")
-            effectSphere(center,0xffaa66,4,500);
-
-        if(key === "c")
-            effectRing(center,0xffddaa,5,600);
-
-        if(key === "v")
-            effectSphere(
-                player.position,
-                0xffbb77,
-                10,
-                900
-            );
-
-        if(key === "f")
-            effectSphere(
-                player.position,
-                0xffe0bb,
-                16,
-                1300
-            );
-    }
-
-
-    damageEnemies(
-        center,
-        key === "f" ? 16 :
-        key === "v" ? 11 :
-        key === "c" ? 7 : 5,
-        damage
-    );
-
-
-    updateUI();
-
-
-    setTimeout(() => {
-
-        playerData.attack = false;
-
-    },350);
-}
-
-
-/* =========================================================
-   COOLDOWN
-========================================================= */
-
-function startCooldown(
-    key,
-    seconds
-) {
-
-    const slot =
-        document.getElementById(
-            "skill-" + key
-        );
-
-    const cd =
-        slot.querySelector(".cd");
-
-    cd.style.display =
-        "flex";
-
-    let remaining =
-        seconds;
-
-    cd.textContent =
-        remaining.toFixed(1);
-
-    const interval =
-        setInterval(() => {
-
-            remaining -= .1;
-
-            if(remaining <= 0) {
-
-                clearInterval(interval);
-
-                cooldowns[key] =
-                    false;
-
-                cd.style.display =
-                    "none";
-
-                return;
-            }
-
-            cd.textContent =
-                remaining.toFixed(1);
-
-        },100);
-}
+const originalHitEnemy =
+    hitEnemy;
 
 
 /* =========================================================
    NPC
 ========================================================= */
 
-function interactNPCs() {
+function createNPC(x,z){
 
-    const distanceFruit =
-        player.position.distanceTo(
-            fruitNPC.position
+    const npc =
+        createCharacter(0x8e44ad);
+
+    npc.position.set(
+        x,
+        0,
+        z
+    );
+
+    npc.userData.isNPC = true;
+
+    return npc;
+}
+
+const npc =
+    createNPC(
+        -5,
+        -2
+    );
+
+
+/* =========================================================
+   INTERAÇÃO
+========================================================= */
+
+function interact(){
+
+    const interaction =
+        document.getElementById(
+            "interaction"
         );
 
-    const distanceQuest =
+    const distance =
         player.position.distanceTo(
-            questNPC.position
+            npc.position
         );
 
+    if(distance < 12){
 
-    if(distanceFruit < 7) {
+        interaction.style.display =
+            "block";
 
-        openFruitMenu();
+        interaction.textContent =
+            "Capitão: Derrote 5 inimigos para ganhar uma recompensa!";
 
-        return;
+        setTimeout(()=>{
+            interaction.style.display =
+                "none";
+        },3000);
+
+    }else{
+
+        showMessage(
+            "Nada para interagir aqui."
+        );
     }
+}
 
 
-    if(distanceQuest < 7) {
+/* =========================================================
+   FRUTA NO MAPA
+========================================================= */
 
-        if(!playerData.questActive) {
+function createFruitPickup(
+    x,
+    z,
+    fruitKey
+){
 
-            playerData.questActive =
-                true;
+    const data =
+        fruits[fruitKey];
 
-            playerData.questKills =
-                0;
+    const group =
+        new THREE.Group();
 
-            updateQuest();
+    const fruit =
+        sphere(
+            1.5,
+            data.color
+        );
 
-            showMessage(
-                "Missão iniciada! Derrote 5 inimigos."
-            );
+    fruit.position.set(
+        x,
+        4,
+        z
+    );
 
-        } else {
+    group.add(fruit);
+
+    const stem =
+        cylinder(
+            .15,
+            1,
+            0x59361e,
+            0,
+            1.7,
+            0
+        );
+
+    group.add(stem);
+
+    group.position.y = 0;
+
+    group.userData.fruitKey =
+        fruitKey;
+
+    group.userData.collected =
+        false;
+
+    scene.add(group);
+
+    fruitPickups.push(group);
+}
+
+
+const fruitPickups = [];
+
+createFruitPickup(
+    12,
+    14,
+    "ice"
+);
+
+createFruitPickup(
+    -25,
+    17,
+    "light"
+);
+
+createFruitPickup(
+    24,
+    -18,
+    "quake"
+);
+
+createFruitPickup(
+    -8,
+    -28,
+    "beast"
+);
+
+
+/* =========================================================
+   COLETAR FRUTA
+========================================================= */
+
+function checkFruitPickups(){
+
+    fruitPickups.forEach(
+        pickup => {
 
             if(
-                playerData.questKills >= 5
-            ) {
+                pickup.userData.collected
+            ) return;
 
-                playerData.questActive =
-                    false;
-
-                playerData.questKills =
-                    0;
-
-                playerData.beli += 2000;
-
-                playerData.xp += 100;
-
-                showMessage(
-                    "MISSÃO COMPLETA! +$2000 +100 XP"
+            const distance =
+                player.position.distanceTo(
+                    pickup.position
                 );
 
-                updateQuest();
+            if(distance < 6){
 
+                const key =
+                    pickup.userData.fruitKey;
+
+                currentFruit =
+                    fruits[key];
+
+                pickup.userData.collected =
+                    true;
+
+                pickup.visible = false;
+
+                renderHotbar();
                 updateUI();
 
-            } else {
-
                 showMessage(
-                    "Você ainda precisa derrotar " +
-                    (5-playerData.questKills) +
-                    " inimigos."
+                    `Você encontrou a fruta ${currentFruit.name}!`,
+                    "#" +
+                    currentFruit.color
+                        .toString(16)
+                        .padStart(6,"0")
+                );
+            }
+        }
+    );
+}
+
+
+/* =========================================================
+   ATAQUE BÁSICO
+========================================================= */
+
+addEventListener(
+    "mousedown",
+    e => {
+
+        if(e.button === 0){
+            basicAttack();
+        }
+    }
+);
+
+
+function basicAttack(){
+
+    if(attacking || dodging) return;
+
+    attacking = true;
+
+    const direction =
+        new THREE.Vector3(
+            0,
+            0,
+            -1
+        );
+
+    direction.applyQuaternion(
+        player.quaternion
+    );
+
+    const origin =
+        player.position.clone();
+
+    origin.y += 4;
+
+    createEffect(
+        origin.clone().add(
+            direction.clone().multiplyScalar(3)
+        ),
+        currentFruit.color
+    );
+
+    damageEnemies(
+        origin,
+        direction,
+        7,
+        12 + level * 2
+    );
+
+    player.userData.armR.rotation.x =
+        -Math.PI / 2;
+
+    setTimeout(()=>{
+        player.userData.armR.rotation.x = 0;
+        attacking = false;
+    },220);
+}
+
+
+/* =========================================================
+   MOVIMENTO DO PLAYER
+========================================================= */
+
+function updatePlayer(delta){
+
+    if(dodging) return;
+
+    const direction =
+        new THREE.Vector3();
+
+    if(keys.KeyW) direction.z -= 1;
+    if(keys.KeyS) direction.z += 1;
+    if(keys.KeyA) direction.x -= 1;
+    if(keys.KeyD) direction.x += 1;
+
+    const moving =
+        direction.lengthSq() > 0;
+
+    if(moving){
+
+        direction.normalize();
+
+        const speed =
+            sprinting
+                ? sprintSpeed
+                : walkSpeed;
+
+        player.position.x +=
+            direction.x *
+            speed *
+            delta;
+
+        player.position.z +=
+            direction.z *
+            speed *
+            delta;
+
+        const targetRotation =
+            Math.atan2(
+                direction.x,
+                direction.z
+            );
+
+        player.rotation.y =
+            THREE.MathUtils.lerp(
+                player.rotation.y,
+                targetRotation,
+                .18
+            );
+    }
+
+    /* gravidade */
+
+    velocityY +=
+        gravity * delta;
+
+    player.position.y +=
+        velocityY * delta;
+
+    if(player.position.y <= 0){
+
+        player.position.y = 0;
+
+        velocityY = 0;
+
+        grounded = true;
+    }
+
+    /* limite da ilha */
+
+    const distance =
+        Math.sqrt(
+            player.position.x ** 2 +
+            player.position.z ** 2
+        );
+
+    if(distance > 64){
+
+        const angle =
+            Math.atan2(
+                player.position.z,
+                player.position.x
+            );
+
+        player.position.x =
+            Math.cos(angle) * 63;
+
+        player.position.z =
+            Math.sin(angle) * 63;
+    }
+
+    /* animação */
+
+    const data =
+        player.userData;
+
+    if(moving && grounded){
+
+        const walk =
+            Math.sin(
+                performance.now() * .012
+            );
+
+        data.legL.rotation.x =
+            walk * .6;
+
+        data.legR.rotation.x =
+            -walk * .6;
+
+        data.armL.rotation.x =
+            -walk * .45;
+
+        if(!attacking){
+            data.armR.rotation.x =
+                walk * .45;
+        }
+
+        data.body.position.y =
+            4.5 +
+            Math.abs(walk) * .12;
+
+    }else{
+
+        data.legL.rotation.x *= .8;
+        data.legR.rotation.x *= .8;
+        data.armL.rotation.x *= .8;
+
+        if(!attacking){
+            data.armR.rotation.x *= .8;
+        }
+
+        data.body.position.y =
+            THREE.MathUtils.lerp(
+                data.body.position.y,
+                4.5,
+                .15
+            );
+    }
+}
+
+
+/* =========================================================
+   IA DOS INIMIGOS
+========================================================= */
+
+function updateEnemies(delta){
+
+    enemies.forEach(enemy => {
+
+        if(
+            !enemy ||
+            enemy.userData.dead
+        ) return;
+
+        const distance =
+            enemy.position.distanceTo(
+                player.position
+            );
+
+        if(
+            enemy.userData.hitFlash > 0
+        ){
+
+            enemy.userData.hitFlash -=
+                delta;
+
+            enemy.userData.body.material.color
+                .set(0xffffff);
+
+        }else{
+
+            enemy.userData.body.material.color
+                .set(enemy.userData.baseColor);
+        }
+
+        if(distance < 28){
+
+            const direction =
+                player.position
+                    .clone()
+                    .sub(enemy.position);
+
+            direction.y = 0;
+
+            if(direction.lengthSq() > 0){
+                direction.normalize();
+            }
+
+            const rotation =
+                Math.atan2(
+                    direction.x,
+                    direction.z
+                );
+
+            enemy.rotation.y =
+                THREE.MathUtils.lerp(
+                    enemy.rotation.y,
+                    rotation,
+                    .08
+                );
+
+            if(distance > 5){
+
+                enemy.position.add(
+                    direction.multiplyScalar(
+                        5 * delta
+                    )
+                );
+
+                const walk =
+                    Math.sin(
+                        performance.now()*.01
+                    );
+
+                enemy.userData.legL.rotation.x =
+                    walk*.5;
+
+                enemy.userData.legR.rotation.x =
+                    -walk*.5;
+
+            }else{
+
+                enemy.userData.attackCooldown -=
+                    delta;
+
+                if(
+                    enemy.userData.attackCooldown <= 0
+                ){
+
+                    damagePlayer(
+                        8 + level
+                    );
+
+                    enemy.userData.attackCooldown =
+                        1.4;
+                }
+            }
+        }
+    });
+}
+
+
+/* =========================================================
+   QUEST TRACKING
+========================================================= */
+
+const oldHitEnemy =
+    hitEnemy;
+
+function registerQuestKill(){
+
+    if(
+        questActive &&
+        quest.progress < quest.target
+    ){
+
+        quest.progress++;
+
+        updateQuest();
+    }
+}
+
+
+/*
+   Intercepta mortes através de uma pequena
+   verificação baseada nos inimigos removidos.
+*/
+
+let previousEnemyCount =
+    enemies.length;
+
+setInterval(()=>{
+
+    if(enemies.length < previousEnemyCount){
+
+        const killed =
+            previousEnemyCount -
+            enemies.length;
+
+        for(let i=0;i<killed;i++){
+            registerQuestKill();
+        }
+    }
+
+    previousEnemyCount =
+        enemies.length;
+
+},300);
+
+
+/* =========================================================
+   CÂMERA
+========================================================= */
+
+const cameraOffset =
+    new THREE.Vector3(
+        0,
+        13,
+        22
+    );
+
+function updateCamera(){
+
+    const desired =
+        player.position.clone()
+            .add(cameraOffset);
+
+    camera.position.lerp(
+        desired,
+        .08
+    );
+
+    const target =
+        player.position.clone();
+
+    target.y += 4;
+
+    camera.lookAt(target);
+}
+
+
+/* =========================================================
+   NUVENS
+========================================================= */
+
+function updateClouds(delta){
+
+    clouds.forEach(
+        cloud => {
+
+            cloud.position.x +=
+                delta * 2;
+
+            if(
+                cloud.position.x > 250
+            ){
+                cloud.position.x = -250;
+            }
+        }
+    );
+}
+
+
+/* =========================================================
+   ÁGUA ANIMADA
+========================================================= */
+
+const oceanPositions =
+    ocean.geometry.attributes.position;
+
+function animateOcean(){
+
+    const time =
+        performance.now() * .001;
+
+    for(
+        let i=0;
+        i<oceanPositions.count;
+        i++
+    ){
+
+        const x =
+            oceanPositions.getX(i);
+
+        const z =
+            oceanPositions.getY(i);
+
+        const y =
+            Math.sin(
+                x*.035 + time
+            ) * .35 +
+            Math.cos(
+                z*.04 + time*1.2
+            ) * .25;
+
+        oceanPositions.setZ(
+            i,
+            y
+        );
+    }
+
+    oceanPositions.needsUpdate = true;
+
+    ocean.geometry.computeVertexNormals();
+}
+
+
+/* =========================================================
+   FADE
+========================================================= */
+
+function fadeScreen(){
+
+    const fade =
+        document.getElementById("fade");
+
+    fade.style.opacity = "1";
+
+    setTimeout(()=>{
+        fade.style.opacity = "0";
+    },500);
+}
+
+
+/* =========================================================
+   ORBIT CONTROLS
+========================================================= */
+
+const controls =
+    new OrbitControls(
+        camera,
+        renderer.domElement
+    );
+
+controls.enabled = false;
+
+
+/* =========================================================
+   RESPONSIVIDADE
+========================================================= */
+
+addEventListener(
+    "resize",
+    () => {
+
+        camera.aspect =
+            innerWidth /
+            innerHeight;
+
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(
+            innerWidth,
+            innerHeight
+        );
+    }
+);
+
+
+/* =========================================================
+   LOOP PRINCIPAL
+========================================================= */
+
+const clock =
+    new THREE.Clock();
+
+function animate(){
+
+    requestAnimationFrame(
+        animate
+    );
+
+    const delta =
+        Math.min(
+            clock.getDelta(),
+            .05
+        );
+
+    updatePlayer(delta);
+
+    updateEnemies(delta);
+
+    updateCamera();
+
+    updateClouds(delta);
+
+    checkFruitPickups();
+
+    animateOcean();
+
+    renderer.render(
+        scene,
+        camera
+    );
+}
+
+animate();
+
+
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
+
+updateUI();
+updateQuest();
+
+showMessage(
+    "Bem-vindo ao Fruit Seas!",
+    "#ffd54d"
+);
+
+console.log(
+    "Fruit Seas 3D iniciado."
+);
