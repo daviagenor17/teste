@@ -2,819 +2,260 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Pou Game Remake</title>
-    <style>
-        * { box-sizing: border-box; user-select: none; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1e272e;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
-        }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz do Arco-Íris</title>
 
-        #phone-container {
-            width: 100%;
-            max-width: 400px;
-            height: 720px;
-            background-color: #f7d794;
-            border-radius: 25px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-            border: 8px solid #3d3d3d;
-        }
-
-        /* Top Bar & Stats */
-        .top-bar {
-            background: rgba(0,0,0,0.15);
-            padding: 8px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            z-index: 10;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #fff;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-            font-size: 14px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-        }
-
-        .stat-card {
-            background: rgba(255,255,255,0.8);
-            border-radius: 8px;
-            padding: 4px;
-            text-align: center;
-            font-size: 10px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .bar-outer {
-            width: 100%;
-            height: 8px;
-            background: #ccc;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 2px;
-        }
-
-        .bar-inner { height: 100%; width: 100%; transition: width 0.3s; }
-        #bar-fome { background: #e74c3c; }
-        #bar-saude { background: #2ecc71; }
-        #bar-energia { background: #f1c40f; }
-        #bar-diversao { background: #3498db; }
-
-        /* Main View Room */
-        #room-viewport {
-            flex: 1;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.5s;
-        }
-
-        .room-kitchen { background: #f8a5c2; }
-        .room-bathroom { background: #78e08f; }
-        .room-bedroom { background: #6a89cc; }
-        .room-playroom { background: #f6b93b; }
-        .room-night { background: #0c2461 !important; }
-
-        #room-title {
-            position: absolute;
-            top: 10px;
-            font-size: 20px;
-            font-weight: 900;
-            color: rgba(255,255,255,0.8);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-        }
-
-        /* Pou Character Visual */
-        #pou-wrapper {
-            position: relative;
-            width: 180px;
-            height: 160px;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-
-        #pou-svg { width: 100%; height: 100%; }
-
-        /* Dirt and Poop Overlay */
-        .dirt-overlay {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            background: #84817a;
-            border-radius: 50%;
-            opacity: 0.8;
-            pointer-events: none;
-        }
-
-        /* Interactive Items Zone */
-        #interactive-item {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            font-size: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: grab;
-            touch-action: none;
-            z-index: 20;
-        }
-
-        /* Navigation Arrows */
-        .nav-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0,0,0,0.3);
-            color: white;
-            border: none;
-            width: 35px;
-            height: 50px;
-            font-size: 22px;
-            border-radius: 8px;
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        .nav-left { left: 5px; }
-        .nav-right { right: 5px; }
-
-        /* Room Actions Dock */
-        .action-dock {
-            background: rgba(0,0,0,0.1);
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            z-index: 10;
-        }
-
-        .dock-btn {
-            background: white;
-            border: 2px solid #555;
-            padding: 8px 14px;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 0 #555;
-            transition: transform 0.1s, box-shadow 0.1s;
-        }
-
-        .dock-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 0 #555;
-        }
-
-        /* Minigame Canvas Overlay */
-        #game-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-        }
-
-        #game-canvas {
-            background: #81ecec;
-            border-radius: 10px;
-            border: 3px solid #fff;
-        }
-
-        /* Modal Shop */
-        .modal {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 90;
-        }
-
-        .modal-content {
-            background: white;
-            width: 85%;
-            max-height: 80%;
-            border-radius: 15px;
-            padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .shop-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .shop-item button {
-            background: #2ecc71;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<div id="phone-container">
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <div class="info-row">
-            <span>Nível: <span id="txt-level">1</span></span>
-            <span>XP: <span id="txt-xp">0</span>/100</span>
-            <span>🪙 Moedas: <span id="txt-coins">100</span></span>
-        </div>
-        <div class="stats-grid">
-            <div class="stat-card">Fome <div class="bar-outer"><div id="bar-fome" class="bar-inner"></div></div></div>
-            <div class="stat-card">Saúde <div class="bar-outer"><div id="bar-saude" class="bar-inner"></div></div></div>
-            <div class="stat-card">Energia <div class="bar-outer"><div id="bar-energia" class="bar-inner"></div></div></div>
-            <div class="stat-card">Diversão <div class="bar-outer"><div id="bar-diversao" class="bar-inner"></div></div></div>
-        </div>
-    </div>
-
-    <!-- Main Room Viewport -->
-    <div id="room-viewport" class="room-kitchen">
-        <button class="nav-btn nav-left" onclick="changeRoom(-1)">❮</button>
-        <span id="room-title">Cozinha</span>
-        <button class="nav-btn nav-right" onclick="changeRoom(1)">❯</button>
-
-        <!-- Pou SVG Graphics -->
-        <div id="pou-wrapper">
-            <svg id="pou-svg" viewBox="0 0 200 180">
-                <!-- Body -->
-                <path id="pou-body" d="M 100 10 C 150 10, 180 80, 180 140 C 180 170, 140 175, 100 175 C 60 175, 20 170, 20 140 C 20 80, 50 10, 100 10 Z" fill="#b07d4f" stroke="#4a2e18" stroke-width="4"/>
-                
-                <!-- Eyes -->
-                <g id="eyes">
-                    <ellipse cx="70" cy="70" rx="18" ry="24" fill="white" stroke="#333" stroke-width="2"/>
-                    <ellipse cx="130" cy="70" rx="18" ry="24" fill="white" stroke="#333" stroke-width="2"/>
-                    <circle id="pupil-left" cx="70" cy="70" r="8" fill="black"/>
-                    <circle id="pupil-right" cx="130" cy="70" r="8" fill="black"/>
-                </g>
-
-                <!-- Mouth -->
-                <path id="pou-mouth" d="M 80 120 Q 100 135 120 120" fill="transparent" stroke="#4a2e18" stroke-width="4" stroke-linecap="round"/>
-
-                <!-- Accessories Layer -->
-                <g id="hat-layer"></g>
-            </svg>
-            <div id="dirt-container"></div>
-        </div>
-
-        <!-- Draggable Interactive Item -->
-        <div id="interactive-item">🍎</div>
-    </div>
-
-    <!-- Bottom Actions -->
-    <div class="action-dock" id="action-dock">
-        <!-- Dynamic per room -->
-    </div>
-
-    <!-- Minigame Overlay -->
-    <div id="game-overlay">
-        <h2 style="color:white; margin-bottom: 10px;">Comida Caidinha</h2>
-        <canvas id="game-canvas" width="320" height="400"></canvas>
-        <button class="dock-btn" style="margin-top: 15px;" onclick="closeMinigame()">Sair do Jogo</button>
-    </div>
-
-    <!-- Shop Modal -->
-    <div class="modal" id="shop-modal">
-        <div class="modal-content">
-            <h3>Loja & Guarda-Roupa</h3>
-            <div id="shop-items-container"></div>
-            <button class="dock-btn" onclick="closeShop()">Fechar</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    /* ================= AUDIO ENGINE (Web Audio API) ================= */
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playSound(type) {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        const now = audioCtx.currentTime;
-        if (type === 'eat') {
-            osc.frequency.setValueAtTime(300, now);
-            osc.frequency.exponentialRampToValueAtTime(150, now + 0.15);
-            gain.gain.setValueAtTime(0.3, now);
-            osc.start(now); osc.stop(now + 0.15);
-        } else if (type === 'wash') {
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(400, now);
-            osc.frequency.linearRampToValueAtTime(600, now + 0.1);
-            gain.gain.setValueAtTime(0.1, now);
-            osc.start(now); osc.stop(now + 0.1);
-        } else if (type === 'coin') {
-            osc.frequency.setValueAtTime(987.77, now); // B5
-            osc.frequency.setValueAtTime(1318.51, now + 0.08); // E6
-            gain.gain.setValueAtTime(0.2, now);
-            osc.start(now); osc.stop(now + 0.25);
-        } else if (type === 'levelup') {
-            osc.frequency.setValueAtTime(440, now);
-            osc.frequency.setValueAtTime(554, now + 0.1);
-            osc.frequency.setValueAtTime(659, now + 0.2);
-            gain.gain.setValueAtTime(0.3, now);
-            osc.start(now); osc.stop(now + 0.4);
-        }
-    }
-
-    /* ================= GAME STATE ================= */
-    const rooms = ['Cozinha', 'Banheiro', 'Quarto', 'Diversão'];
-    let currentRoomIndex = 0;
-
-    let state = {
-        fome: 80,
-        saude: 90,
-        energia: 70,
-        diversao: 60,
-        coins: 100,
-        xp: 0,
-        level: 1,
-        color: '#b07d4f',
-        hat: 'none',
-        dirt: 2,
-        isSleeping: false,
-        inventory: { apple: 5, burger: 2, potionHealth: 1 }
-    };
-
-    const itemsData = {
-        apple: { name: 'Maçã', emoji: '🍎', type: 'food', value: 20, cost: 5 },
-        burger: { name: 'Hambúrguer', emoji: '🍔', type: 'food', value: 40, cost: 15 },
-        pizza: { name: 'Pizza', emoji: '🍕', type: 'food', value: 35, cost: 12 },
-        icecream: { name: 'Sorvete', emoji: '🍦', type: 'food', value: 25, cost: 8 },
-        potionHealth: { name: 'Poção Saúde', emoji: '🧪', type: 'potion', target: 'saude', value: 50, cost: 20 },
-        potionEnergy: { name: 'Energético', emoji: '⚡', type: 'potion', target: 'energia', value: 50, cost: 25 },
-        redColor: { name: 'Cor Vermelha', emoji: '🎨', type: 'skin', value: '#e74c3c', cost: 50 },
-        blueColor: { name: 'Cor Azul', emoji: '🎨', type: 'skin', value: '#3498db', cost: 50 },
-        capHat: { name: 'Boné', emoji: '🧢', type: 'hat', value: 'cap', cost: 80 }
-    };
-
-    let activeFood = 'apple';
-
-    /* ================= INITIALIZATION ================= */
-    window.onload = () => {
-        loadGame();
-        setupDragAndDrop();
-        setupEyeTracking();
-        updateUI();
-        setInterval(gameLoop, 3000); // Decaimento dos atributos
-    };
-
-    function gameLoop() {
-        if (!state.isSleeping) {
-            state.fome = Math.max(0, state.fome - 2);
-            state.saude = Math.max(0, state.saude - 1);
-            state.energia = Math.max(0, state.energia - 1.5);
-            state.diversao = Math.max(0, state.diversao - 2);
-
-            if (state.fome < 30 || state.saude < 30) {
-                if (Math.random() > 0.6 && state.dirt < 5) state.dirt++;
-            }
-        } else {
-            state.energia = Math.min(100, state.energia + 8);
-            state.fome = Math.max(0, state.fome - 0.5);
-            if (state.energia >= 100) toggleSleep(false);
-        }
-
-        updateUI();
-        saveGame();
-    }
-
-    function addXP(amount) {
-        state.xp += amount;
-        if (state.xp >= 100) {
-            state.level++;
-            state.xp -= 100;
-            state.coins += 50;
-            playSound('levelup');
-            alert(`🎉 Parabéns! Pou subiu para o Nível ${state.level}! Ganhou 50 moedas!`);
-        }
-        updateUI();
-    }
-
-    /* ================= UI & RENDER ================= */
-    function updateUI() {
-        document.getElementById('txt-level').innerText = state.level;
-        document.getElementById('txt-xp').innerText = state.xp;
-        document.getElementById('txt-coins').innerText = state.coins;
-
-        document.getElementById('bar-fome').style.width = state.fome + '%';
-        document.getElementById('bar-saude').style.width = state.saude + '%';
-        document.getElementById('bar-energia').style.width = state.energia + '%';
-        document.getElementById('bar-diversao').style.width = state.diversao + '%';
-
-        document.getElementById('pou-body').setAttribute('fill', state.color);
-
-        // Render Sujeira
-        const dirtContainer = document.getElementById('dirt-container');
-        dirtContainer.innerHTML = '';
-        for (let i = 0; i < state.dirt; i++) {
-            let d = document.createElement('div');
-            d.className = 'dirt-overlay';
-            d.style.top = (40 + (i * 25) % 80) + 'px';
-            d.style.left = (30 + (i * 35) % 100) + 'px';
-            dirtContainer.appendChild(d);
-        }
-
-        // Render Expressão Bucal
-        const mouth = document.getElementById('pou-mouth');
-        if (state.isSleeping) {
-            mouth.setAttribute('d', 'M 90 125 Q 100 125 110 125'); // Biquinho dormindo
-        } else if (state.fome < 30 || state.saude < 30 || state.diversao < 30) {
-            mouth.setAttribute('d', 'M 80 135 Q 100 115 120 135'); // Triste
-        } else {
-            mouth.setAttribute('d', 'M 80 120 Q 100 135 120 120'); // Feliz
-        }
-
-        // Render Chapéu
-        const hatLayer = document.getElementById('hat-layer');
-        if (state.hat === 'cap') {
-            hatLayer.innerHTML = `<path d="M 60 40 Q 100 10 140 40 L 160 45 L 140 50 Z" fill="#e74c3c"/>`;
-        } else {
-            hatLayer.innerHTML = '';
-        }
-
-        renderRoomDock();
-    }
-
-    function changeRoom(dir) {
-        currentRoomIndex = (currentRoomIndex + dir + rooms.length) % rooms.length;
-        const viewport = document.getElementById('room-viewport');
-        document.getElementById('room-title').innerText = rooms[currentRoomIndex];
-
-        viewport.className = '';
-        const item = document.getElementById('interactive-item');
-        item.style.display = 'flex';
-
-        if (currentRoomIndex === 0) { // Cozinha
-            viewport.classList.add('room-kitchen');
-            item.innerText = itemsData[activeFood] ? itemsData[activeFood].emoji : '🍎';
-        } else if (currentRoomIndex === 1) { // Banheiro
-            viewport.classList.add('room-bathroom');
-            item.innerText = '🧼';
-        } else if (currentRoomIndex === 2) { // Quarto
-            viewport.classList.add(state.isSleeping ? 'room-night' : 'room-bedroom');
-            item.style.display = 'none';
-        } else if (currentRoomIndex === 3) { // Diversão
-            viewport.classList.add('room-playroom');
-            item.innerText = '⚽';
-        }
-
-        updateUI();
-    }
-
-    function renderRoomDock() {
-        const dock = document.getElementById('action-dock');
-        dock.innerHTML = '';
-
-        if (currentRoomIndex === 0) { // Cozinha
-            let btnShop = document.createElement('button');
-            btnShop.className = 'dock-btn';
-            btnShop.innerText = '🛒 Comprar Comida';
-            btnShop.onclick = () => openShop('food');
-
-            let btnSelect = document.createElement('button');
-            btnSelect.className = 'dock-btn';
-            btnSelect.innerText = `Item: ${itemsData[activeFood].emoji} (${state.inventory[activeFood] || 0})`;
-            btnSelect.onclick = cycleFood;
-
-            dock.appendChild(btnShop);
-            dock.appendChild(btnSelect);
-        } else if (currentRoomIndex === 1) { // Banheiro
-            let btnPotions = document.createElement('button');
-            btnPotions.className = 'dock-btn';
-            btnPotions.innerText = '🧪 Poções';
-            btnPotions.onclick = () => openShop('potion');
-            dock.appendChild(btnPotions);
-        } else if (currentRoomIndex === 2) { // Quarto
-            let btnSleep = document.createElement('button');
-            btnSleep.className = 'dock-btn';
-            btnSleep.innerText = state.isSleeping ? '💡 Acordar' : '🌙 Dormir';
-            btnSleep.onclick = () => toggleSleep(!state.isSleeping);
-
-            let btnCloset = document.createElement('button');
-            btnCloset.className = 'dock-btn';
-            btnCloset.innerText = '👔 Armário';
-            btnCloset.onclick = () => openShop('style');
-
-            dock.appendChild(btnSleep);
-            dock.appendChild(btnCloset);
-        } else if (currentRoomIndex === 3) { // Diversão
-            let btnGame = document.createElement('button');
-            btnGame.className = 'dock-btn';
-            btnGame.innerText = '🎮 Jogar Minijogo';
-            btnGame.onclick = startMinigame;
-            dock.appendChild(btnGame);
-        }
-    }
-
-    function cycleFood() {
-        const foods = Object.keys(itemsData).filter(k => itemsData[k].type === 'food');
-        let idx = foods.indexOf(activeFood);
-        activeFood = foods[(idx + 1) % foods.length];
-        document.getElementById('interactive-item').innerText = itemsData[activeFood].emoji;
-        renderRoomDock();
-    }
-
-    function toggleSleep(sleeping) {
-        state.isSleeping = sleeping;
-        const viewport = document.getElementById('room-viewport');
-        const pupils = document.querySelectorAll('#eyes circle');
-
-        if (sleeping) {
-            viewport.classList.add('room-night');
-            pupils.forEach(p => p.style.display = 'none');
-        } else {
-            viewport.classList.remove('room-night');
-            viewport.classList.add('room-bedroom');
-            pupils.forEach(p => p.style.display = 'block');
-        }
-        updateUI();
-    }
-
-    /* ================= DRAG AND DROP INTERACTION ================= */
-    function setupDragAndDrop() {
-        const item = document.getElementById('interactive-item');
-        const pou = document.getElementById('pou-wrapper');
-        let isDragging = false;
-        let startX, startY, origX, origY;
-
-        item.addEventListener('pointerdown', (e) => {
-            if (state.isSleeping) return;
-            isDragging = true;
-            startX = e.clientX;
-            startY = e.clientY;
-            origX = item.offsetLeft;
-            origY = item.offsetTop;
-            item.setPointerCapture(e.pointerId);
-        });
-
-        item.addEventListener('pointermove', (e) => {
-            if (!isDragging) return;
-            let dx = e.clientX - startX;
-            let dy = e.clientY - startY;
-            item.style.left = (origX + dx) + 'px';
-            item.style.top = (origY + dy) + 'px';
-
-            // Checar Colisão com o Pou
-            let itemRect = item.getBoundingClientRect();
-            let pouRect = pou.getBoundingClientRect();
-
-            if (checkOverlap(itemRect, pouRect)) {
-                handleInteraction();
-            }
-        });
-
-        item.addEventListener('pointerup', () => {
-            isDragging = false;
-            // Retornar à posição inicial
-            item.style.left = 'calc(50% - 30px)';
-            item.style.top = '70%';
-        });
-    }
-
-    function checkOverlap(rect1, rect2) {
-        return !(rect1.right < rect2.left || 
-                 rect1.left > rect2.right || 
-                 rect1.bottom < rect2.top || 
-                 rect1.top > rect2.bottom);
-    }
-
-    function handleInteraction() {
-        if (currentRoomIndex === 0) { // Alimentar
-            if ((state.inventory[activeFood] || 0) > 0 && state.fome < 100) {
-                state.inventory[activeFood]--;
-                state.fome = Math.min(100, state.fome + itemsData[activeFood].value);
-                playSound('eat');
-                addXP(10);
-                animatePou();
-            }
-        } else if (currentRoomIndex === 1) { // Banhar
-            if (state.dirt > 0) {
-                state.dirt--;
-                state.saude = Math.min(100, state.saude + 10);
-                playSound('wash');
-                addXP(5);
-                animatePou();
-            }
-        }
-    }
-
-    function animatePou() {
-        const pou = document.getElementById('pou-wrapper');
-        pou.style.transform = 'scale(1.1)';
-        setTimeout(() => pou.style.transform = 'scale(1)', 150);
-    }
-
-    function setupEyeTracking() {
-        document.addEventListener('pointermove', (e) => {
-            if (state.isSleeping) return;
-            const leftPupil = document.getElementById('pupil-left');
-            const rightPupil = document.getElementById('pupil-right');
-            
-            [leftPupil, rightPupil].forEach(pupil => {
-                let rect = pupil.getBoundingClientRect();
-                let cx = rect.left + rect.width / 2;
-                let cy = rect.top + rect.height / 2;
-                let angle = Math.atan2(e.clientY - cy, e.clientX - cx);
-                let dist = Math.min(5, Math.hypot(e.clientX - cx, e.clientY - cy) / 10);
-                
-                let ox = Math.cos(angle) * dist;
-                let oy = Math.sin(angle) * dist;
-                
-                pupil.setAttribute('transform', `translate(${ox}, ${oy})`);
-            });
-        });
-    }
-
-    /* ================= SHOP SYSTEM ================= */
-    function openShop(filter) {
-        const modal = document.getElementById('shop-modal');
-        const container = document.getElementById('shop-items-container');
-        container.innerHTML = '';
-
-        Object.keys(itemsData).forEach(key => {
-            let item = itemsData[key];
-            if (filter === 'food' && item.type !== 'food') return;
-            if (filter === 'potion' && item.type !== 'potion') return;
-            if (filter === 'style' && item.type !== 'skin' && item.type !== 'hat') return;
-
-            let row = document.createElement('div');
-            row.className = 'shop-item';
-            row.innerHTML = `
-                <span>${item.emoji} ${item.name}</span>
-                <button onclick="buyItem('${key}')">Comprar (🪙 ${item.cost})</button>
-            `;
-            container.appendChild(row);
-        });
-
-        modal.style.display = 'flex';
-    }
-
-    function closeShop() {
-        document.getElementById('shop-modal').style.display = 'none';
-    }
-
-    function buyItem(key) {
-        let item = itemsData[key];
-        if (state.coins >= item.cost) {
-            state.coins -= item.cost;
-            playSound('coin');
-
-            if (item.type === 'food') {
-                state.inventory[key] = (state.inventory[key] || 0) + 1;
-            } else if (item.type === 'potion') {
-                state[item.target] = Math.min(100, state[item.target] + item.value);
-            } else if (item.type === 'skin') {
-                state.color = item.value;
-            } else if (item.type === 'hat') {
-                state.hat = item.value;
-            }
-
-            updateUI();
-            closeShop();
-        } else {
-            alert('Moedas insuficientes!');
-        }
-    }
-
-    /* ================= MINIGAME (Food Catch) ================= */
-    let gameLoopId, canvas, ctx;
-    let playerX = 130;
-    let fallingObjects = [];
-
-    function startMinigame() {
-        document.getElementById('game-overlay').style.display = 'flex';
-        canvas = document.getElementById('game-canvas');
-        ctx = canvas.getContext('2d');
-        playerX = canvas.width / 2 - 25;
-        fallingObjects = [];
-        
-        window.addEventListener('keydown', handleGameInput);
-        canvas.addEventListener('touchmove', handleTouchInput);
-
-        gameLoopId = requestAnimationFrame(updateMinigame);
-    }
-
-    function closeMinigame() {
-        cancelAnimationFrame(gameLoopId);
-        window.removeEventListener('keydown', handleGameInput);
-        document.getElementById('game-overlay').style.display = 'none';
-    }
-
-    function handleGameInput(e) {
-        if (e.key === 'ArrowLeft') playerX = Math.max(0, playerX - 20);
-        if (e.key === 'ArrowRight') playerX = Math.min(canvas.width - 50, playerX + 20);
-    }
-
-    function handleTouchInput(e) {
-        let rect = canvas.getBoundingClientRect();
-        let touchX = e.touches[0].clientX - rect.left;
-        playerX = Math.max(0, Math.min(canvas.width - 50, touchX - 25));
-    }
-
-    function updateMinigame() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Desenhar Pou Jogador
-        ctx.fillStyle = state.color;
-        ctx.beginPath();
-        ctx.arc(playerX + 25, 370, 25, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Spawn de Itens
-        if (Math.random() < 0.04) {
-            fallingObjects.push({
-                x: Math.random() * (canvas.width - 30),
-                y: 0,
-                speed: 2 + Math.random() * 3,
-                isFood: Math.random() > 0.2
-            });
-        }
-
-        // Atualizar e Desenhar Itens Caidores
-        for (let i = fallingObjects.length - 1; i >= 0; i--) {
-            let obj = fallingObjects[i];
-            obj.y += obj.speed;
-
-            ctx.font = '20px Arial';
-            ctx.fillText(obj.isFood ? '🍎' : '💣', obj.x, obj.y);
-
-            // Checar Colisão
-            if (obj.y >= 340 && obj.y <= 380 && obj.x >= playerX - 10 && obj.x <= playerX + 40) {
-                if (obj.isFood) {
-                    state.coins += 2;
-                    state.diversao = Math.min(100, state.diversao + 5);
-                    playSound('coin');
-                    addXP(2);
-                } else {
-                    playSound('eat');
-                    closeMinigame();
-                    alert('💥 Ops! Você pegou uma bomba!');
+    <main class="container">
+
+        <section class="quiz-card">
+
+            <h1>🌈 Quiz do Arco-Íris</h1>
+
+            <p class="intro">
+                Responda às perguntas e descubra sua porcentagem!
+            </p>
+
+            <form id="quizForm">
+
+                <div class="question">
+                    <h2>1. Qual desses estilos você escolheria?</h2>
+
+                    <label>
+                        <input type="radio" name="q1" value="0">
+                        Algo simples
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q1" value="25">
+                        Algo estiloso
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q1" value="50">
+                        Algo chamativo
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q1" value="75">
+                        Brilho e muitas cores ✨
+                    </label>
+                </div>
+
+
+                <div class="question">
+                    <h2>2. Você gosta de música pop?</h2>
+
+                    <label>
+                        <input type="radio" name="q2" value="0">
+                        Não
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q2" value="25">
+                        Um pouco
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q2" value="50">
+                        Bastante
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q2" value="75">
+                        Amo! 🎶
+                    </label>
+                </div>
+
+
+                <div class="question">
+                    <h2>3. Quanto você gosta de uma boa fofoca?</h2>
+
+                    <label>
+                        <input type="radio" name="q3" value="0">
+                        Não gosto
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q3" value="25">
+                        Só às vezes
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q3" value="50">
+                        Gosto bastante
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q3" value="75">
+                        Preciso saber de tudo 👀
+                    </label>
+                </div>
+
+
+                <div class="question">
+                    <h2>4. Você se considera uma pessoa dramática?</h2>
+
+                    <label>
+                        <input type="radio" name="q4" value="0">
+                        Nada dramático
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q4" value="25">
+                        Um pouco
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q4" value="50">
+                        Às vezes
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q4" value="75">
+                        Minha vida é uma novela 🎭
+                    </label>
+                </div>
+
+
+                <div class="question">
+                    <h2>5. O que você prefere fazer no sábado?</h2>
+
+                    <label>
+                        <input type="radio" name="q5" value="0">
+                        Ficar em casa
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q5" value="25">
+                        Assistir séries
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q5" value="50">
+                        Sair com amigos
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q5" value="75">
+                        Festa até amanhecer 🕺
+                    </label>
+                </div>
+
+
+                <button type="button" onclick="calcular()">
+                    CALCULAR RESULTADO
+                </button>
+
+            </form>
+
+
+            <section id="resultado" class="resultado">
+
+                <h2>Seu resultado</h2>
+
+                <div id="porcentagem">0%</div>
+
+                <p id="mensagem"></p>
+
+                <button onclick="location.reload()">
+                    Fazer novamente
+                </button>
+
+            </section>
+
+
+            <p class="aviso">
+                Este quiz é apenas uma brincadeira e não determina
+                orientação sexual ou identidade.
+            </p>
+
+        </section>
+
+    </main>
+
+
+    <script>
+
+        function calcular() {
+
+            const perguntas = 5;
+            let pontos = 0;
+
+            for (let i = 1; i <= perguntas; i++) {
+
+                const resposta =
+                    document.querySelector(
+                        `input[name="q${i}"]:checked`
+                    );
+
+                if (!resposta) {
+                    alert("Responda todas as perguntas!");
                     return;
                 }
-                fallingObjects.splice(i, 1);
-                continue;
+
+                pontos += Number(resposta.value);
             }
 
-            if (obj.y > canvas.height) fallingObjects.splice(i, 1);
+            /*
+                Cada pergunta vale no máximo 75 pontos.
+                5 perguntas = 375 pontos.
+            */
+
+            const maximo = perguntas * 75;
+
+            const porcentagem =
+                Math.round((pontos / maximo) * 100);
+
+
+            document.getElementById("porcentagem")
+                .textContent = porcentagem + "%";
+
+
+            let mensagem;
+
+            if (porcentagem <= 20) {
+
+                mensagem = "Resultado baixo! 😎";
+
+            } else if (porcentagem <= 40) {
+
+                mensagem = "Tem um pouquinho de arco-íris aí! ✨";
+
+            } else if (porcentagem <= 60) {
+
+                mensagem = "Um resultado equilibrado! 🌈";
+
+            } else if (porcentagem <= 80) {
+
+                mensagem = "O arco-íris está aparecendo! 🏳️‍🌈";
+
+            } else {
+
+                mensagem = "Muito arco-íris por aqui! 💅🌈";
+
+            }
+
+
+            document.getElementById("mensagem")
+                .textContent = mensagem;
+
+
+            document.getElementById("resultado")
+                .style.display = "block";
+
+
+            document.getElementById("resultado")
+                .scrollIntoView({
+                    behavior: "smooth"
+                });
         }
 
-        gameLoopId = requestAnimationFrame(updateMinigame);
-    }
+    </script>
 
-    /* ================= LOCAL STORAGE SAVE/LOAD ================= */
-    function saveGame() {
-        localStorage.setItem('pou_save_data', JSON.stringify(state));
-    }
-
-    function loadGame() {
-        const saved = localStorage.getItem('pou_save_data');
-        if (saved) {
-            state = Object.assign(state, JSON.parse(saved));
-        }
-    }
-</script>
 </body>
 </html>
