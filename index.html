@@ -3,256 +3,432 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz do Arco-Íris</title>
+
+    <title>QueerMeter — Quiz</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <main class="container">
+    <div class="background"></div>
 
-        <section class="quiz-card">
+    <main class="app">
 
-            <h1>🌈 Quiz do Arco-Íris</h1>
+        <header class="header">
+            <div class="logo">
+                <span>Q</span>
+                QueerMeter
+            </div>
 
-            <p class="intro">
-                Responda às perguntas e descubra sua porcentagem!
+            <div class="counter">
+                <span id="currentQuestion">1</span>/10
+            </div>
+        </header>
+
+
+        <section class="intro" id="intro">
+
+            <div class="rainbow-icon">🌈</div>
+
+            <h1>Descubra seu<br><span>resultado</span></h1>
+
+            <p>
+                Um quiz descontraído baseado nas suas respostas.
+                Não leve o resultado a sério — é só diversão.
             </p>
 
-            <form id="quizForm">
-
-                <div class="question">
-                    <h2>1. Qual desses estilos você escolheria?</h2>
-
-                    <label>
-                        <input type="radio" name="q1" value="0">
-                        Algo simples
-                    </label>
-
-                    <label>
-                        <input type="radio" name="q1" value="25">
-                        Algo estiloso
-                    </label>
-
-                    <label>
-                        <input type="radio" name="q1" value="50">
-                        Algo chamativo
-                    </label>
-
-                    <label>
-                        <input type="radio" name="q1" value="75">
-                        Brilho e muitas cores ✨
-                    </label>
-                </div>
-
-
-                <div class="question">
-                    <h2>2. Você gosta de música pop?</h2>
-
-                    <label>
-                        <input type="radio" name="q2" value="0">
-                        Não
-                    </label>
-
-                    <label>
-                        <input type="radio" name="q2" value="25">
-                        Um pouco
-                    </label>
-
-                    <label>
-                        <input type="radio" name="q2" value="50">
-                        Bastante
-                    </label>
-
-                    <label>
-                        <input type="radio" name="q2" value="75">
-                        Amo! 🎶
-                    </label>
-                </div>
-
-
-                <div class="question">
-                    <h2>3. Quanto você gosta de uma boa fofoca?</h2>
-
-                    <label>
-                        <input type="radio" name="q3" value="0">
-                        Não gosto
-                    </label>
-
-                    <label>
-                        <input type="radio" name="q3" value="25">
-                        Só às vezes
-                    </label>
-
-                    <label>
-                        <input type="radio" name="q3" value="50">
-                        Gosto bastante
-                    </label>
-
-                    <label>
-                        <input type="radio" name="q3" value="75">
-                        Preciso saber de tudo 👀
-                    </label>
-                </div>
-
-
-                <div class="question">
-                    <h2>4. Você se considera uma pessoa dramática?</h2>
-
-                    <label>
-                        <input type="radio" name="q4" value="0">
-                        Nada dramático
-                    </label>
-
-                    <label>
-                        <input type="radio" name="q4" value="25">
-                        Um pouco
-                    </label>
-
-                    <label>
-                        <input type="radio" name="q4" value="50">
-                        Às vezes
-                    </label>
-
-                    <label>
-                        <input type="radio" name="q4" value="75">
-                        Minha vida é uma novela 🎭
-                    </label>
-                </div>
-
-
-                <div class="question">
-                    <h2>5. O que você prefere fazer no sábado?</h2>
-
-                    <label>
-                        <input type="radio" name="q5" value="0">
-                        Ficar em casa
-                    </label>
-
-                    <label>
-                        <input type="radio" name="q5" value="25">
-                        Assistir séries
-                    </label>
-
-                    <label>
-                        <input type="radio" name="q5" value="50">
-                        Sair com amigos
-                    </label>
-
-                    <label>
-                        <input type="radio" name="q5" value="75">
-                        Festa até amanhecer 🕺
-                    </label>
-                </div>
-
-
-                <button type="button" onclick="calcular()">
-                    CALCULAR RESULTADO
-                </button>
-
-            </form>
-
-
-            <section id="resultado" class="resultado">
-
-                <h2>Seu resultado</h2>
-
-                <div id="porcentagem">0%</div>
-
-                <p id="mensagem"></p>
-
-                <button onclick="location.reload()">
-                    Fazer novamente
-                </button>
-
-            </section>
-
-
-            <p class="aviso">
-                Este quiz é apenas uma brincadeira e não determina
-                orientação sexual ou identidade.
-            </p>
+            <button class="start-btn" onclick="startQuiz()">
+                Começar o quiz
+                <span>→</span>
+            </button>
 
         </section>
+
+
+        <section class="quiz" id="quiz">
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progress"></div>
+            </div>
+
+
+            <div class="question-card">
+
+                <div class="question-number" id="questionNumber">
+                    PERGUNTA 01
+                </div>
+
+                <h2 id="questionText"></h2>
+
+                <div class="answers" id="answers"></div>
+
+            </div>
+
+
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+                Próxima
+                <span>→</span>
+            </button>
+
+        </section>
+
+
+        <section class="result" id="result">
+
+            <div class="result-icon">🌈</div>
+
+            <p class="result-label">SEU RESULTADO</p>
+
+            <div class="percentage" id="percentage">
+                0%
+            </div>
+
+            <div class="result-bar">
+                <div id="resultFill"></div>
+            </div>
+
+            <h2 id="resultTitle"></h2>
+
+            <p id="resultText"></p>
+
+            <button class="restart-btn" onclick="restartQuiz()">
+                Refazer quiz
+            </button>
+
+        </section>
+
+
+        <footer>
+            Feito para diversão • Nenhum resultado define quem você é.
+        </footer>
 
     </main>
 
 
     <script>
 
-        function calcular() {
+        const questions = [
 
-            const perguntas = 5;
-            let pontos = 0;
+            {
+                question: "Você começa a conversar com alguém novo. O que mais chama sua atenção?",
+                answers: [
+                    { text: "O jeito como a pessoa conversa", points: 10 },
+                    { text: "O senso de humor", points: 25 },
+                    { text: "A personalidade", points: 40 },
+                    { text: "Aquele 'algo a mais' difícil de explicar", points: 50 }
+                ]
+            },
 
-            for (let i = 1; i <= perguntas; i++) {
+            {
+                question: "Uma pessoa que você acha bonita começa a demonstrar interesse em você. Sua reação seria:",
+                answers: [
+                    { text: "Provavelmente nem perceberia", points: 10 },
+                    { text: "Ficaria curioso(a)", points: 25 },
+                    { text: "Tentaria entender melhor a situação", points: 40 },
+                    { text: "Eu definitivamente perceberia", points: 50 }
+                ]
+            },
 
-                const resposta =
-                    document.querySelector(
-                        `input[name="q${i}"]:checked`
-                    );
+            {
+                question: "Em uma série, qual tipo de relacionamento costuma prender mais sua atenção?",
+                answers: [
+                    { text: "Um romance bem construído", points: 10 },
+                    { text: "Uma relação cheia de conflitos", points: 25 },
+                    { text: "Uma dinâmica inesperada", points: 40 },
+                    { text: "A química entre os personagens", points: 50 }
+                ]
+            },
 
-                if (!resposta) {
-                    alert("Responda todas as perguntas!");
-                    return;
-                }
+            {
+                question: "Você recebe uma DM de alguém que considera atraente. O que passa pela sua cabeça?",
+                answers: [
+                    { text: "Respondo normalmente", points: 10 },
+                    { text: "Fico curioso(a)", points: 25 },
+                    { text: "Penso bastante no que responder", points: 40 },
+                    { text: "Analiso cada detalhe da mensagem", points: 50 }
+                ]
+            },
 
-                pontos += Number(resposta.value);
+            {
+                question: "Quando você imagina seu relacionamento ideal, o que importa mais?",
+                answers: [
+                    { text: "Companheirismo", points: 10 },
+                    { text: "Confiança", points: 25 },
+                    { text: "Conexão emocional", points: 40 },
+                    { text: "A atração e a conexão", points: 50 }
+                ]
+            },
+
+            {
+                question: "Você percebe que está olhando para alguém por mais tempo do que deveria. O que faz?",
+                answers: [
+                    { text: "Desvio o olhar", points: 10 },
+                    { text: "Finjo que não aconteceu", points: 25 },
+                    { text: "Dou uma segunda olhada", points: 40 },
+                    { text: "Espero a pessoa olhar de volta", points: 50 }
+                ]
+            },
+
+            {
+                question: "Seus amigos começam a especular sobre quem você ficaria. Como você reage?",
+                answers: [
+                    { text: "Mudo de assunto", points: 10 },
+                    { text: "Dou risada", points: 25 },
+                    { text: "Entro na brincadeira", points: 40 },
+                    { text: "Talvez eles tenham descoberto alguma coisa", points: 50 }
+                ]
+            },
+
+            {
+                question: "Qual dessas situações parece mais provável para você?",
+                answers: [
+                    { text: "Me apaixonar pela personalidade", points: 10 },
+                    { text: "Sentir uma atração inesperada", points: 25 },
+                    { text: "Descobrir que meu tipo mudou", points: 40 },
+                    { text: "Me surpreender com quem me atrai", points: 50 }
+                ]
+            },
+
+            {
+                question: "Se alguém perguntasse qual é o seu tipo, você responderia:",
+                answers: [
+                    { text: "Tenho um tipo bem definido", points: 10 },
+                    { text: "Depende da pessoa", points: 25 },
+                    { text: "Meu tipo é meio complicado", points: 40 },
+                    { text: "Eu não sei explicar meu tipo", points: 50 }
+                ]
+            },
+
+            {
+                question: "Qual frase combina mais com você?",
+                answers: [
+                    { text: "Eu sei exatamente do que gosto", points: 10 },
+                    { text: "Estou descobrindo algumas coisas", points: 25 },
+                    { text: "As coisas podem ser mais complexas", points: 40 },
+                    { text: "Prefiro não colocar tudo em uma caixinha", points: 50 }
+                ]
             }
 
-            /*
-                Cada pergunta vale no máximo 75 pontos.
-                5 perguntas = 375 pontos.
-            */
-
-            const maximo = perguntas * 75;
-
-            const porcentagem =
-                Math.round((pontos / maximo) * 100);
+        ];
 
 
-            document.getElementById("porcentagem")
-                .textContent = porcentagem + "%";
+        let current = 0;
+        let score = 0;
+        let selected = null;
 
 
-            let mensagem;
+        function startQuiz() {
 
-            if (porcentagem <= 20) {
+            document.getElementById("intro").style.display = "none";
+            document.getElementById("quiz").style.display = "block";
 
-                mensagem = "Resultado baixo! 😎";
+            showQuestion();
+        }
 
-            } else if (porcentagem <= 40) {
 
-                mensagem = "Tem um pouquinho de arco-íris aí! ✨";
+        function showQuestion() {
 
-            } else if (porcentagem <= 60) {
+            const question = questions[current];
 
-                mensagem = "Um resultado equilibrado! 🌈";
+            selected = null;
 
-            } else if (porcentagem <= 80) {
+            document.getElementById("currentQuestion")
+                .textContent = current + 1;
 
-                mensagem = "O arco-íris está aparecendo! 🏳️‍🌈";
+            document.getElementById("questionNumber")
+                .textContent =
+                `PERGUNTA ${String(current + 1).padStart(2, "0")}`;
+
+            document.getElementById("questionText")
+                .textContent = question.question;
+
+
+            const answers = document.getElementById("answers");
+
+            answers.innerHTML = "";
+
+
+            question.answers.forEach((answer, index) => {
+
+                const button = document.createElement("button");
+
+                button.className = "answer";
+
+                button.innerHTML = `
+                    <span class="letter">
+                        ${String.fromCharCode(65 + index)}
+                    </span>
+
+                    <span>${answer.text}</span>
+
+                    <span class="check">✓</span>
+                `;
+
+
+                button.onclick = () => {
+
+                    document.querySelectorAll(".answer")
+                        .forEach(item =>
+                            item.classList.remove("selected")
+                        );
+
+                    button.classList.add("selected");
+
+                    selected = answer.points;
+                };
+
+
+                answers.appendChild(button);
+            });
+
+
+            const progress =
+                ((current) / questions.length) * 100;
+
+            document.getElementById("progress")
+                .style.width = progress + "%";
+
+
+            const nextButton =
+                document.getElementById("nextBtn");
+
+            if (current === questions.length - 1) {
+                nextButton.innerHTML =
+                    `Ver resultado <span>→</span>`;
+            } else {
+                nextButton.innerHTML =
+                    `Próxima <span>→</span>`;
+            }
+        }
+
+
+        function nextQuestion() {
+
+            if (selected === null) {
+
+                document.querySelector(".question-card")
+                    .classList.add("shake");
+
+                setTimeout(() => {
+                    document.querySelector(".question-card")
+                        .classList.remove("shake");
+                }, 400);
+
+                return;
+            }
+
+
+            score += selected;
+
+            current++;
+
+
+            if (current >= questions.length) {
+
+                showResult();
 
             } else {
 
-                mensagem = "Muito arco-íris por aqui! 💅🌈";
+                showQuestion();
+            }
+        }
+
+
+        function showResult() {
+
+            document.getElementById("quiz")
+                .style.display = "none";
+
+            document.getElementById("result")
+                .style.display = "block";
+
+
+            const maxScore = questions.length * 50;
+
+            const percentage =
+                Math.round((score / maxScore) * 100);
+
+
+            document.getElementById("percentage")
+                .textContent = percentage + "%";
+
+
+            setTimeout(() => {
+
+                document.getElementById("resultFill")
+                    .style.width = percentage + "%";
+
+            }, 200);
+
+
+            let title;
+            let text;
+
+
+            if (percentage <= 20) {
+
+                title = "Você é bem definido(a)!";
+
+                text =
+                    "Suas respostas ficaram mais próximas do lado convencional do quiz. Mas lembre-se: só você pode definir sua orientação.";
+
+            } else if (percentage <= 40) {
+
+                title = "Tem algumas surpresas aí...";
+
+                text =
+                    "Suas respostas mostraram algumas possibilidades interessantes. Talvez você seja menos previsível do que imaginava.";
+
+            } else if (percentage <= 60) {
+
+                title = "Zona arco-íris 🌈";
+
+                text =
+                    "Suas respostas ficaram bem no meio do caminho. Parece que colocar tudo em uma única caixinha não seria tão simples.";
+
+            } else if (percentage <= 80) {
+
+                title = "O arco-íris apareceu!";
+
+                text =
+                    "Suas respostas tiveram bastante afinidade com as opções mais abertas do quiz.";
+
+            } else {
+
+                title = "Alerta arco-íris máximo! 🌈";
+
+                text =
+                    "Você marcou muitas das respostas associadas ao lado mais aberto do nosso quiz. Mas o verdadeiro resultado só você conhece.";
 
             }
 
 
-            document.getElementById("mensagem")
-                .textContent = mensagem;
+            document.getElementById("resultTitle")
+                .textContent = title;
+
+            document.getElementById("resultText")
+                .textContent = text;
+        }
 
 
-            document.getElementById("resultado")
+        function restartQuiz() {
+
+            current = 0;
+            score = 0;
+            selected = null;
+
+            document.getElementById("result")
+                .style.display = "none";
+
+            document.getElementById("intro")
                 .style.display = "block";
 
+            document.getElementById("resultFill")
+                .style.width = "0%";
 
-            document.getElementById("resultado")
-                .scrollIntoView({
-                    behavior: "smooth"
-                });
+            document.getElementById("currentQuestion")
+                .textContent = "1";
         }
 
     </script>
